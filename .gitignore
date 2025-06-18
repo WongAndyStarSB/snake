@@ -1,0 +1,8 @@
+
+LOG.txt
+.vs
+.vscode
+snake-Windows.exe
+snake-Windows.pdb
+build/
+PreviousLogs/
