@@ -104,7 +104,9 @@ void Game::restart(std::string new_lev_id) {
 void Game::lose() {
     stop_game(LOSED);
     Utils::delay_for_time_in_ms(1000);
-    std::cout << "\nYou Losed!\n";
+    std::string tmp = "\nYou Losed!\nlevel: " + level.get_id() + "\nsnake_length: " + std::to_string(game_board_objects->get_snake_length());
+    std::cout << tmp;
+    Logger::log(tmp, INFO);
 }
 void Game::win() {
     stop_game(WON);

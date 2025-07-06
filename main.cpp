@@ -24,7 +24,7 @@ using namespace snake;
 
 bool game_running = false;
 bool player_started = false;
-const int FRAME_RATE = 30;
+const int FRAME_RATE = 300;
 const Fraction MILLIS_PER_FRAME_FRACTION = Fraction(1000, FRAME_RATE); // 1000 milliseconds in a second divided by frame rate
 const int MILLIS_PER_FRAME = MILLIS_PER_FRAME_FRACTION.floor(); // Convert to milliseconds
 Vector2D player_direction(0, 0);
@@ -40,11 +40,11 @@ int main() {
     SDL_CreateWindowAndRenderer("Snake", 100, 100, NULL, &window, &renderer);
     SDL_Event event;
     
-    srand(0);
+    srand(1);
     levels::init_testing_levels();
     levels::init_levels(); // Initialize levels
 
-    const Level& lev = Level::find_level("T001");
+    const Level& lev = Level::find_level("0001");
     Game game(lev);
     game.init();
     game.start();
@@ -61,13 +61,13 @@ int main() {
 				break;
             } else if (event.type == SDL_EVENT_KEY_DOWN) {
                 player_started = true;
-                if (event.key.scancode == SDL_SCANCODE_W || event.key.scancode == SDL_SCANCODE_UP) {
+                if (event.key.scancode == SDL_SCANCODE_W || event.key.scancode == SDL_SCANCODE_UP || event.key.key == SDLK_KP_8) {
                     player_direction = Vector2D::get_up_vector();
-                } else if (event.key.scancode == SDL_SCANCODE_S || event.key.scancode == SDL_SCANCODE_DOWN) {
+                } else if (event.key.scancode == SDL_SCANCODE_S || event.key.scancode == SDL_SCANCODE_DOWN || event.key.key == SDLK_KP_5) {
                     player_direction = Vector2D::get_down_vector();
-                } else if (event.key.scancode == SDL_SCANCODE_A || event.key.scancode == SDL_SCANCODE_LEFT) {
+                } else if (event.key.scancode == SDL_SCANCODE_A || event.key.scancode == SDL_SCANCODE_LEFT || event.key.key == SDLK_KP_4) {
                     player_direction = Vector2D::get_left_vector();
-                } else if (event.key.scancode == SDL_SCANCODE_D || event.key.scancode == SDL_SCANCODE_RIGHT) {
+                } else if (event.key.scancode == SDL_SCANCODE_D || event.key.scancode == SDL_SCANCODE_RIGHT || event.key.key == SDLK_KP_6) {
                     player_direction = Vector2D::get_right_vector();
                 } else if (event.key.scancode == SDL_SCANCODE_SPACE) {
                     if (game.get_status() == RUNNING) {
