@@ -1,5 +1,16 @@
 #include "Game.hpp"
 
+
+
+#include <stdexcept>
+
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_timer.h>
+
+#include "StringUtils.hpp"
+#include "Logger.hpp"
+
+
 // public
 
 // Game::Game (
@@ -32,21 +43,74 @@ Game::Game (
 // Game::Game(Game&&) = default; // enable move constructor
 
 void Game::init(std::string new_lev_id) {
-    Logger::log("Game::init", INFO);
+    Logger::log(
+        "Game::init(std::string new_lev_id)", 
+        "initializing", 
+        Logger::INFO
+    );
     if (new_lev_id != "") {
-        level.change_value_as(Level::find_level(new_lev_id).get_copy());
+        level = Level::find_level(new_lev_id).get_copy();
     }
     num_of_step = 0;
     board2d = level.get_board_reference();
     board2d[level.get_snake_init_pos_reference().y][level.get_snake_init_pos_reference().x] = SnakeSeg::head_representing_num;
     // delete game_board_objects (no need as it is unique_ptr)
     game_board_objects = std::make_unique<GameBoardObjects>(this);
-    game_board_objects->init(level);
-    init_done = true;
+    game_board_objects->init();
+
     while (!snake_velocity_queue.empty()) {
         snake_velocity_queue.pop();
     }
     snake_velocity_queue.push(Vector2D(0, 0)); // initial velocity is (0, 0)
+
+    init_done = true;
+}
+
+GameStatus Game::get_status() {
+    return status;
+}
+GameStopReason Game::get_stop_reason() {
+    return stop_reason;
+}
+
+
+void Game::run() {
+    log("run()", "function started", Logger::INFO);
+    if (status != RUNNING) {
+        log_and_throw<std::logic_error>("run()", "function should not be called when status != RUNNING");
+    }
+    while (true) {
+        SDL_Event event;
+        if (SDL_PollEvent(&event)) {
+            if (event.type == SDL_EVENT_QUIT) {
+                return;
+            } else if (event.type == SDL_EVENT_KEY_DOWN) {
+                if (event.key.scancode == SDL_SCANCODE_W || event.key.scancode == SDL_SCANCODE_UP || event.key.key == SDLK_KP_8) {
+                    player_direction = Vector2D::get_up_vector();
+                } else if (event.key.scancode == SDL_SCANCODE_S || event.key.scancode == SDL_SCANCODE_DOWN || event.key.key == SDLK_KP_5) {
+                    player_direction = Vector2D::get_down_vector();
+                } else if (event.key.scancode == SDL_SCANCODE_A || event.key.scancode == SDL_SCANCODE_LEFT || event.key.key == SDLK_KP_4) {
+                    player_direction = Vector2D::get_left_vector();
+                } else if (event.key.scancode == SDL_SCANCODE_D || event.key.scancode == SDL_SCANCODE_RIGHT || event.key.key == SDLK_KP_6) {
+                    player_direction = Vector2D::get_right_vector();
+                } else if (event.key.scancode == SDL_SCANCODE_SPACE) {
+                    if (status == RUNNING) {
+                        pause();
+                    } else if (stop_reason == PAUSED) {
+                        resume();
+                    }
+                } else if (event.key.scancode == SDL_SCANCODE_R) {
+                    if (status == STOP && stop_reason != PAUSED) {
+                        player_direction = Vector2D::get_zero_vector();
+                        restart();
+                    }
+                }
+            }
+        }
+        update(frame_num, player_direction, std::cout);
+        ++frame_num;
+        SDL_Delay(MILLIS_PER_FRAME);
+    }
 }
 
 void Game::add_velocity_to_queue(Vector2D velocity) {
@@ -60,14 +124,14 @@ void Game::add_velocity_to_queue(Vector2D velocity) {
 }
 
 void Game::update(size_t frame_num, Vector2D next_snake_velocity, std::ostream& os) {
-    log("Game::update frame_num:" + std::to_string(frame_num), INFO);
-    throw_if_init_not_done("update");
+    log("update", "frame_num:" + std::to_string(frame_num), Logger::INFO);
+    throw_if_init_not_done("update(size_t frame_num, Vector2D next_snake_velocity, std::ostream& os)");
     if (status == STOP) {
-        log("Game::update update failed as game have been stopped", INFO);
+        log("update", "update failed as game have been stopped", Logger::INFO);
         return;
     }
     if (snake_velocity_queue.empty()) {
-        log_and_throw("Game::update: NEVER:snake_velocity_queue is empty, should not happen");
+        log_and_throw<std::logic_error>("update(size_t frame_num, Vector2D next_snake_velocity, std::ostream& os)", "NEVER: snake_velocity_queue is empty, should not happen");
     }
     if (frame_num % snake_period_in_frame_per_square == 0) {
         add_velocity_to_queue(next_snake_velocity);
@@ -89,7 +153,7 @@ void Game::pause() {
 }
 void Game::resume() {
     if (status != STOP || stop_reason != PAUSED) {
-        log("Game::resume: game is not paused, cannot resume", WARNING_2);
+        log("resume()", "game is not paused, cannot resume", Logger::WARNING_2);
         return;
     }
     start_game();
@@ -104,9 +168,13 @@ void Game::restart(std::string new_lev_id) {
 void Game::lose() {
     stop_game(LOSED);
     Utils::delay_for_time_in_ms(1000);
-    std::string tmp = "\nYou Losed!\nlevel: " + level.get_id() + "\nsnake_length: " + std::to_string(game_board_objects->get_snake_length());
-    std::cout << tmp;
-    Logger::log(tmp, INFO);
+    std::string tmp = 
+        "level: " + level.get_id() 
+        + "\nsnake_length: " + std::to_string(game_board_objects->get_snake_length())
+        + "\nstep_no.: " + std::to_string(this->num_of_step)
+    ;
+    std::cout << "\nYou Losed!\n" + tmp;
+    log("lose()", "Game Losed\n" + tmp, Logger::INFO);
 }
 void Game::win() {
     stop_game(WON);
@@ -114,38 +182,45 @@ void Game::win() {
 
 
 void Game::move_snake(bool force) {
-    Vector2D current_velocity = snake_velocity_queue.front();
+    Vector2D current_direction = snake_velocity_queue.front();
     snake_velocity_queue.pop();
     Vector2D next_velocity = snake_velocity_queue.front();
-    log("Game::move_snake velocity:"+current_velocity.to_string(), INFO);
+    log("move_snake(bool force)", "next_velocity:" + next_velocity.to_string(), Logger::INFO);
     throw_if_init_not_done("move_snake");
     if (status == STOP) {
-        log("Game::move_snake move_snake failed as game have been stopped", INFO);
+        log("move_snake(bool force)", "move_snake failed as game have been stopped", Logger::INFO);
+        return;
+    }
+    if (current_direction == Vector2D(0, 0)) {
+        log("move_snake(bool force)", "move_snake skipped as direction == (0, 0)", Logger::INFO);
         return;
     }
     try {
         if (force) {
-            game_board_objects->force_update(current_velocity, next_velocity);
+            game_board_objects->force_update(next_velocity);
         } else {
-            game_board_objects->update(current_velocity, next_velocity);
+            game_board_objects->update(next_velocity);
         }
+        ++num_of_step;
     } catch (std::runtime_error e) {
-        log_and_throw(e.what());
+        log_and_throw<Logger::SeeAbove>("move_snake(bool force)", e.what());
     }
     
-    ++num_of_step;
+    
 }
 
+
+// private
 void Game::display(std::ostream& os, int n) const {
-    log("Game::display", INFO);
-    throw_if_init_not_done("display");
+    log("display(std::ostream& os, int n)", "display", Logger::INFO);
+    throw_if_init_not_done("display(std::ostream& os, int n)");
     
     Matrix<char> display_str_matrix(board_size.y, board_size.x*3, ' ');
     int col_num_of_str;
     const std::unique_ptr<Snake> snake = game_board_objects->get_snake_copy();
-    const std::vector<Apple> apples = game_board_objects->get_apples_copy();
-    const std::vector<Wall> walls = game_board_objects->get_walls_copy();
-    const std::vector<Pos2D> empty_poses = game_board_objects->get_empty_poses_copy();
+    const std::vector<Apple>& apples = game_board_objects->get_apples();
+    const std::vector<Wall>& walls = game_board_objects->get_walls();
+    const std::vector<Pos2D>& empty_poses = game_board_objects->get_empty_poses();
     const auto snake_head_iterator = snake->get_head_iterator();
     Vector2D left_vector = Vector2D::get_left_vector();
     Vector2D right_vector = Vector2D::get_right_vector();
@@ -183,23 +258,7 @@ void Game::display(std::ostream& os, int n) const {
     os << display_str_matrix.join_into_string("\n", "");
 }
 
-GameStatus Game::get_status() {
-    return status;
-}
-GameStopReason Game::get_stop_reason() {
-    return stop_reason;
-}
 
-
-void Game::log(const std::string& message, LogLevel lev, bool step_and_snake_pos_prefix) const {
-    std::string msg = add_prefix_and_indent_for_log(message, step_and_snake_pos_prefix);
-    Logger::log(msg, lev);
-}
-
-void Game::log_and_throw(const std::string& message, bool step_and_snake_pos_prefix) const {
-    std::string msg = add_prefix_and_indent_for_log(message, step_and_snake_pos_prefix);
-    Logger::log_and_throw(msg);
-}
 
 
 // static
@@ -213,24 +272,40 @@ std::string Game::game_stop_reason_to_string(const GameStopReason& reason) {
         case WON:
             return "WON";
         default:
-            Logger::log_and_throw("Game::game_stop_reason_to_string NEVER");
+            Logger::log_and_throw<std::logic_error>(
+                "Game::game_stop_reason_to_string", "NEVER"
+            );
+    }
+}
+
+std::string Game::game_status_to_string(const GameStatus& status) {
+    switch (status) {
+        case STOP:
+            return "STOP";
+        case RUNNING:
+            return "RUNNING";
+        default:
+            Logger::log_and_throw<std::logic_error>(
+                "Game::game_status_to_string", "NEVER"
+            );
     }
 }
 
 // private
 
 void Game::start_game() {
-    log("Game::start_game", INFO);
+    log("start_game()", "", Logger::INFO);
     throw_if_init_not_done("start_game");
     if (status == RUNNING) {
-        log("Game::start_game: game is already running", WARNING_2);
+        log("start_game()", "game is already running, no need to start", Logger::WARNING_2);
         return;
     }
     status = RUNNING;
     stop_reason = NOT_STOPPING; // reset stop reason
+    run();
 }
 void Game::stop_game(GameStopReason reason) {
-    log("Game::stop_game reason:" + game_stop_reason_to_string(reason), INFO);
+    log("stop_game(GameStopReason reason)", "reason:" + game_stop_reason_to_string(reason), Logger::INFO);
     status = STOP;
     stop_reason = reason;
 }
@@ -238,10 +313,11 @@ void Game::stop_game(GameStopReason reason) {
 
 void Game::throw_if_init_not_done(const std::string& method_name, const std::string other_info) const {
     if (!init_done) {
-        Logger::log_and_throw(
-            "Game::" + method_name + 
-            ": ShouldNotBeCalled: the initialization of this has not done" 
-            + ((other_info == "")? "" : "\n"+other_info));
+        Logger::log_and_throw<std::domain_error>(
+            "Game::" + method_name, 
+            "ShouldNotBeCalled: the initialization of this has not done" 
+                + ((other_info == "")? "" : "\n"+other_info)
+        );
     }
 }
 
@@ -260,19 +336,21 @@ std::string Game::add_prefix_and_indent_for_log(const std::string& message, bool
         // ;
         prefix += 
             "Status:"
-            + std::to_string(status)
+            + game_status_to_string(status)
             + " StepNo.:" 
             + std::to_string(num_of_step) 
             + " SnakeHeadPos:"
         ;
         if (game_board_objects == nullptr || !game_board_objects->init_done) {
-            prefix += "(game_board_objects have not initialized)" ;
+            prefix += "/* game_board_objects have not initialized */";
         } else {
-            const std::unique_ptr<Snake> snake = game_board_objects->get_snake_copy();
-            prefix += (snake->head->pos.to_string(false)) + " snake_length:" + std::to_string(snake->snake_segments.size());
+            prefix += 
+                (game_board_objects->get_snake_copy()->head->pos.to_string(false)) 
+                + " snake_length:" 
+                + std::to_string(game_board_objects->get_snake_length());
         }
         
     }
     prefix += " ]\n";
-    return prefix+Utils::String::add_indent(message, 2);
+    return prefix + StringUtils::add_indent(message, 2);
 }

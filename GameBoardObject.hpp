@@ -23,7 +23,6 @@ class GameBoardObject {
         GameBoardObject(const GameBoardObject& other) : pos(other.pos), direction(other.direction) {}
         // Assignment operator
         GameBoardObject operator=(const GameBoardObject& other);
-        void change_values_as(const GameBoardObject& other);
 };
 
 class SnakeSeg : public GameBoardObject {

@@ -8,10 +8,10 @@ GameBoardObject GameBoardObject::operator=(const GameBoardObject& other) {
     }
     return *this;
 }
-void GameBoardObject::change_values_as(const GameBoardObject& other) {
-    this->pos = other.pos;
-    this->direction = other.direction;
-}
+// void GameBoardObject::change_values_as(const GameBoardObject& other) {
+//     this->pos = other.pos;
+//     this->direction = other.direction;
+// }
 
 
 
