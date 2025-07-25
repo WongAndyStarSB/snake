@@ -22,7 +22,7 @@ template <typename ExceptionType>
         msg += StringUtils::common_exceptions_to_string<ExceptionType>();
     } 
     msg += "\n" + message;
-
+    
     log(where, msg, ERROR, true);
     throw ExceptionType(message);
 }

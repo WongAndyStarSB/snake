@@ -12,12 +12,16 @@ namespace Logger {
 
     enum LogLevel {
         INFO,
+        DEBUG,
         WARNING_1,
         WARNING_2,
         WARNING_3,
-        ERROR,
-        DEBUG
+        ERROR
     };
+
+    extern LogLevel log_level_threshold;
+    extern bool delay_log;
+    extern std::string havent_logged_logs;
 
     class SeeAbove : public std::exception {
         std::string msg_;

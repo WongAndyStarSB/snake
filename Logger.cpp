@@ -39,7 +39,14 @@ std::string log_level_to_string(LogLevel lev) {
 
 namespace Logger {
 
+LogLevel log_level_threshold = DEBUG;
+bool delay_log = true;
+std::string havent_logged_logs = "";
+
 void log(const std::string& func_name, const std::string& message, LogLevel lev, bool add_timestamp) {
+    if (lev < log_level_threshold) {
+        return;
+    }
 
     std::string msg = StringUtils::add_indent(func_name + "\n" + message, 4);
 
@@ -60,6 +67,15 @@ void log(const std::string& func_name, const std::string& message, LogLevel lev,
         msg = "[" + timestamp + "] [" + log_level_to_string(lev) + "] {\n" + msg + "\n}";
     } else {
         msg = "[] [" + log_level_to_string(lev) + "] {\n" + msg + "\n}";
+    }
+    if (delay_log) {
+        if (lev == ERROR) {
+            log_to_file(year_str + "/" + month_and_day, havent_logged_logs + "\n" + msg);
+            return;
+        } else {
+            havent_logged_logs += "\n" + msg;
+            return;
+        }
     }
     log_to_file(year_str + "/" + month_and_day, msg);
 }
