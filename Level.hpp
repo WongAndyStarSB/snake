@@ -19,6 +19,11 @@ class Level { //dataclass
 
     static std::unordered_map<std::string, std::unique_ptr<Level>> existing_levels;
 
+    static const std::string ID_FORMAT;
+    static const std::string ORIG_PREFIX;
+    static const std::string COPY_PREFIX;
+    static const uint8_t ID_LENGTH = 17;
+
   public:
     
     
@@ -41,11 +46,11 @@ class Level { //dataclass
         const bool& arg_variable
     );
     // copy constructor
-    Level(const Level& level); 
+    Level(const Level& level);
     // move constructor
     inline Level(Level&&) = default;
 
-    Level& operator=(const Level&) = delete;
+    Level& operator=(const Level&);
     Level& operator=(Level&&) = default;
 
     Level get_copy() const;
@@ -57,7 +62,7 @@ class Level { //dataclass
     bool get_changeable() const;
 
     Matrix<int>& get_board_reference();
-    Pos2D get_snake_init_pos_reference();
+    Pos2D& get_snake_init_pos_reference();
     
 
     void set_id(std::string new_id);
@@ -65,7 +70,6 @@ class Level { //dataclass
     void set_snake_init_pos(Pos2D new_init_pos);
     void set_apple_init_num(size_t new_init_num);
 
-    void change_value_as(const Level& other);
 
     void switch_to_unchangeable();
 
@@ -76,9 +80,25 @@ class Level { //dataclass
 
     
     inline ~Level() {
-        Logger::log("Level("+id+") destroyed", INFO);
+        Logger::log(
+          "Level::~Level() /*destructor*/", 
+          "Level("+id+") destroyed", 
+          Logger::INFO);
     }
 
+  private:
+    
+    inline void log(const std::string& where, const std::string& message, const Logger::LogLevel& lev) {
+      Logger::log("Level object (id: " + id + ")\nLevel::" + where, message, lev, true);
+    }
+
+    template <typename ExceptionType>
+    [[noreturn]] inline void log_and_throw(const std::string& where, const std::string& message) {
+      Logger::log_and_throw<ExceptionType>("Level object (id: " + id + ")::" + where, message);
+    }
+
+    bool is_id_exist_in_map(const std::string& arg_id);
+    bool is_id_len_suits(const std::string& arg_id);
     
     
 };

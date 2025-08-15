@@ -27,6 +27,11 @@ template <typename ExceptionType>
     throw ExceptionType(message);
 }
 
+template <typename ExceptionType>
+[[noreturn]] void logAndThrow(const std::string& where, std::string message) {
+    log_and_throw(where, message);
+}
+
 } // namespace Logger
 
 

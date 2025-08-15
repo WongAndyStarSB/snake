@@ -15,7 +15,7 @@ namespace levels{
 
 
 inline const void init_testing_levels() {
-    Logger::log("Initializing testing levels...", INFO);
+    Logger::log("snake::levels", "Initializing testing levels...", Logger::INFO);
 
     
     const Matrix<int> TEST_1_BOARD( {
@@ -27,11 +27,11 @@ inline const void init_testing_levels() {
     const int TEST_1_APPLE_INIT_NUM = 4;
     Level::create_and_register("T001", TEST_1_BOARD, TEST_1_SNAKE_INIT_POS, TEST_1_APPLE_INIT_NUM);
 
-    Logger::log("testing levels initialized", INFO);
+    Logger::log("snake::levels", "testing levels initialized", Logger::INFO);
 }
 
 inline const void init_levels() {
-    Logger::log("Initializing levels...", INFO);
+    Logger::log("snake::levels", "Initializing levels...", Logger::INFO);
 
     
     
@@ -107,7 +107,7 @@ inline const void init_levels() {
     Level::create_and_register("0001", LEVEL_1_BOARD, LEVEL_1_SNAKE_INIT_POS, LEVEL_1_APPLE_INIT_NUM);
     Level::create_and_register("0002", LEVEL_2_BOARD, LEVEL_2_SNAKE_INIT_POS, LEVEL_2_APPLE_INIT_NUM);
     Level::create_and_register("YP01", YP01_BOARD, YP01_SNAKE_INIT_POS, YP01_APPLE_INIT_NUM);
-    Logger::log("Levels initialized", INFO);
+    Logger::log("snake::levels", "Levels initialized", Logger::INFO);
 }
 
 }

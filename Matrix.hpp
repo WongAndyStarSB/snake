@@ -23,20 +23,22 @@ class Matrix {
             : num_of_row(arg_num_of_row), num_of_col(arg_num_of_col) {
             data.resize(num_of_row, std::vector<T>(num_of_col, default_val));
         }
-        inline explicit Matrix(std::initializer_list<std::initializer_list<T>> m) 
-            : data(m) 
-            {
-            num_of_row = data.size()
+        inline explicit Matrix(std::initializer_list<std::initializer_list<T>> m) {
+            num_of_row = m.size();
             if (num_of_row == 0) {
                 num_of_col = 0;
                 return;
-            };
-            size_t temp = data[0].size();
-            for (const std::vector<T>& row : data) {
-                if (row.size() != temp) { 
+            }
+
+            data.reserve(num_of_row);
+            size_t temp = (*m.begin()).size();
+            for (const auto& row : m) {
+                if (row.size() != temp) {
                     throw UnequalRowSizeException();
                 }
+                data.emplace_back(row.begin(), row.end());
             }
+
             num_of_col = temp;
         }
         inline explicit Matrix(std::vector<std::vector<T>> arg_data) : data(arg_data), num_of_row(arg_data.size()) {

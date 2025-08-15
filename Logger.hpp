@@ -43,6 +43,9 @@ namespace Logger {
     template <typename ExceptionType = std::runtime_error>
     [[noreturn]] void log_and_throw(const std::string& where, std::string message);
 
+    template <typename ExceptionType = std::runtime_error>
+    [[noreturn]] void logAndThrow(const std::string& where, std::string message);
+
 } // namespace Logger
 
 #include "Logger.inl" // For template implementation

@@ -40,7 +40,7 @@ std::string log_level_to_string(LogLevel lev) {
 namespace Logger {
 
 LogLevel log_level_threshold = DEBUG;
-bool delay_log = true;
+bool delay_log = false;
 std::string havent_logged_logs = "";
 
 void log(const std::string& func_name, const std::string& message, LogLevel lev, bool add_timestamp) {
