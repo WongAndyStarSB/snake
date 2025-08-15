@@ -3,6 +3,8 @@
 
 #include <string>
 #include <type_traits>
+#include <vector>
+
 
 namespace StringUtils {
     inline std::string add_indent(
@@ -55,6 +57,24 @@ namespace StringUtils {
             return "unknown_exception(" + ExceptionType().what() + ")";
         }
     }
+
+    template <typename T>
+    static std::string to_string(const std::vector<T>& vect, bool with_prefix = true) {
+        std::string return_str = ((with_prefix)? ("vector<"+get_class_name<T>()+">[") : ("[")); 
+        if (vect.empty()) {
+            return return_str+"-empty-]";
+        }
+        try {
+            for (size_t i = 0; i < vect.size(); ++i) {
+                return_str += vect[i].to_string(false) + ((i == vect.size()-1)? "]" : ", ");
+            }
+        } catch (const std::exception& e) {
+            throw std::runtime_error(msg);
+        }
+        return return_str;
+    }
+    
+    
 
 }
     

@@ -10,6 +10,11 @@ class Pos2D: public Vector2D {
     public:
         explicit Pos2D(int arg_x, int arg_y) noexcept;
         explicit Pos2D(Vector2D vect) noexcept;
+
+        inline explicit Pos2D() noexcept : Vector2D(0, 0) {}
+
+        inline Pos2D(int arr[2]) noexcept : Vector2D(arr) {}
+        
         // copy constructor
         Pos2D(const Pos2D& other) noexcept;
         // assignment operator

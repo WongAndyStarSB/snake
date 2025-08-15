@@ -7,6 +7,8 @@
 #include <thread>
 #include <chrono>
 #include <typeinfo>
+#include <tuple>
+#include <array>
 
 
 namespace Utils {
@@ -23,50 +25,38 @@ namespace Utils {
     }
     namespace Vector {
         template <typename T>
-        static std::string to_string(const std::vector<T>& vect, bool with_prefix = true) {
-            std::string return_str = ((with_prefix)? ("vector<"+get_class_name<T>()+">[") : ("[")); 
-            if (vect.empty()) {
-                return return_str+"-empty-]";
-            }
-            try {
-                for (size_t i = 0; i < vect.size(); ++i) {
-                    return_str += vect[i].to_string(false) + ((i == vect.size()-1)? "]" : ", ");
-                }
-            } catch (const std::exception& e) {
-                std::string msg = "Utils::vector::to_string error: " + std::string(e.what());
-                Logger::log(msg, ERROR);
-                throw std::runtime_error(msg);
-            } catch (...) {
-                std::string msg = "Utils::vector::to_string error: unknown exception";
-                Logger::log(msg, ERROR);
-                throw std::runtime_error(msg);
-            }
-            return return_str;
-        }
-        
-        template <typename T>
         static bool have_same_elements(const std::vector<T>& vect_1, const std::vector<T>& vect_2, bool hashable = false) {
-            Logger::log("Utils::vector::have_same_elements check_started", INFO);
             if (vect_1.size() != vect_2.size()) {
-                Logger::log("Utils::vector::have_same_elements returned false", INFO);
                 return false;
             }
             std::vector<T> vect_2_copy(vect_2);
             for (const T& vect_1_elem : vect_1) {
                 auto it = std::find(vect_2_copy.begin(), vect_2_copy.end(), vect_1_elem);
                 if (it == vect_2_copy.end()) {
-                    Logger::log("Utils::have_same_elements returned false", INFO);
                     return false;
                 } else {
                     vect_2_copy.erase(it);
                 }
             }
-            Logger::log("Utils::vector::have_same_elements returned true", INFO);
             return true;
         }
 
     }
-    void delay_for_time_in_ms(const size_t t_in_ms);
+    namespace Time {
+        void delay_for_time_in_ms(const size_t& t_in_ms);
+        std::tm get_current_time();
+        std::array<int, 3> get_current_hour_min_sec();
+        unsigned int time_minus_get_seconds(std::array<int, 3> start, std::array<int, 3> end);
+
+        template<typename Callable, typename... Args>
+        long long duration_used_in_function(Callable func, Args&&... args) {
+            auto start_time = std::chrono::high_resolution_clock::now();
+            func(std::forward<Args>(args)...);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+            return duration.count();
+        }
+    }
     void clear_terminal();
     
     template <typename T>

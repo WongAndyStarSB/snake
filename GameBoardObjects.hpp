@@ -37,7 +37,7 @@ class GameBoardObjects {
       // board
     void update_board(Matrix<int>* tmp_board = nullptr);
     // snake
-    void snake_move(const Vector2D& snake_velocity, const Vector2D& next_snake_velocity);
+    void snake_move(const Vector2D& next_snake_direction);
     void snake_grow();
     // apple
     void apple_randomize_pos(Apple &apple, bool eaten_by_snake = false);
@@ -61,17 +61,28 @@ class GameBoardObjects {
     GameBoardObjects& operator=(const GameBoardObjects&) = delete; // disable copy assignment
     GameBoardObjects(GameBoardObjects&&) = default; // enable move constructor
 
-    void init(const Level& level);
-    void update(Vector2D snake_velocity, Vector2D next_snake_velocity);
-    void force_update(const Vector2D& snake_velocity, const Vector2D& next_snake_velocity);
+    void init();
+    void update(Vector2D next_snake_direction);
+    void force_update(const Vector2D& next_snake_velocity);
 
-    const std::unique_ptr<Snake> get_snake_copy() const;
-    const std::vector<Apple> get_apples_copy() const;
-    const std::vector<Wall> get_walls_copy() const;
-    const std::vector<Pos2D> get_empty_poses_copy() const;
+    const Snake& get_snake() const;
+    Snake get_snake_copy() const;
+    const std::vector<Apple>& get_apples() const;
+    const std::vector<Wall>& get_walls() const;
+    const std::vector<Pos2D>& get_empty_poses() const;
 
     size_t get_snake_length() const;
 
+  private:
+
+    void log(const std::string& where, const std::string& message, const Logger::LogLevel& lev) const;
+    
+    template <typename ExceptionType>
+    [[noreturn]] void log_and_throw(const std::string& where, const std::string& message) const {
+      related_game->log_and_throw<ExceptionType>(
+        "GameBoardObjects::" + where, 
+        message);
+    }
 };
     
 

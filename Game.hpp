@@ -8,8 +8,14 @@
 #include <string>
 #include <queue>
 
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_timer.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3_ttf/SDL_ttf.h>
+
 #include "StringUtils.hpp"
-#include "Fraction.hpp"
+#include "Math/Fraction.hpp"
 #include "Vector2D.hpp"
 #include "Matrix.hpp"
 #include "Size2D.hpp"
@@ -33,26 +39,32 @@ class Game {
         bool init_done = false;
         GameStatus status = STOP;
         GameStopReason stop_reason = PREPARING;
+
+        SDL_Window* window; // non-owning // don't delete
+        SDL_Renderer* renderer; // non-owning // don't delete
         Vector2D player_direction = Vector2D::get_zero_vector();
         size_t num_of_step = 0;
         std::queue<Vector2D> snake_velocity_queue;
         std::unique_ptr<GameBoardObjects> game_board_objects = nullptr;
+        unsigned int time_used_in_s = 0;
 
-        int snake_velocity = 3;
+        unsigned int snake_velocity_in_square_per_ks = 2000;
 
         unsigned int frame_num = 0;
-        const int FRAME_RATE = 300;
-        const Fraction MILLIS_PER_FRAME_FRACTION = Fraction(1000, FRAME_RATE); // 1000 milliseconds in a second divided by frame rate
-        const int MILLIS_PER_FRAME = MILLIS_PER_FRAME_FRACTION.floor(); // Convert to milliseconds
+        const uint8_t FRAME_RATE = 30;
+        const Math::Fraction MICROS_PER_FRAME_FRACTION {(int)1000000, static_cast<int>(FRAME_RATE)}; // 1000000 microseconds in a second divided by frame rate
+        const unsigned int MICROS_PER_FRAME = MICROS_PER_FRAME_FRACTION.floor(); // Convert to milliseconds
 
         
         void start_game();
         void stop_game(GameStopReason reason);
+        void start_moving();
 
         void add_velocity_to_queue(Vector2D velocity);
         void move_snake(bool force = false);
         void run();
         void display(std::ostream& os, int n = 0) const;
+        void record(const std::string& message , bool add_timestamp = true);
 
         void throw_if_init_not_done(const std::string& method_name = "", const std::string other_info = "") const;
         std::string add_prefix_and_indent_for_log(const std::string& message, bool step_and_snake_pos_prefix) const;
@@ -64,7 +76,7 @@ class Game {
         Size2D board_size;
         Matrix<int> board2d;
         Level level;
-        unsigned int snake_period_in_frame_per_square = 6;
+        unsigned int snake_period_in_frame_per_square = FRAME_RATE * 1000 / snake_velocity_in_square_per_ks;
         
         
         // explicit Game(
@@ -83,7 +95,7 @@ class Game {
         void start();
         void restart(std::string new_lev_id = "");
 
-        void update(size_t frame_num, Vector2D next_snake_velocity, std::ostream& os);
+        void update(Vector2D next_snake_velocity, std::ostream& os);
         void pause();
         void resume();
         

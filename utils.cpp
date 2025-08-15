@@ -1,6 +1,9 @@
 #include "utils.hpp"
-#include "Logger.hpp"
 
+#include <ctime>
+#include <chrono>
+#include <tuple>
+#include "Logger.hpp"
 
 std::string Utils::String::char_to_string(const char c) {
     return std::string(1, c);
@@ -30,12 +33,49 @@ bool Utils::Int::is_int_in_range(const size_t num, const size_t upper_lim, const
     return (num >= lower_lim && num <= upper_lim);
 }
 
-void Utils::delay_for_time_in_ms(const size_t t_in_ms) {
+void Utils::Time::delay_for_time_in_ms(const size_t& t_in_ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(t_in_ms));
 }
+std::tm Utils::Time::get_current_time() {
+    // auto current_time = std::chrono::high_resolution_clock::now();
+
+    std::time_t now = std::time(nullptr);
+    std::tm local_time;
+    #ifdef _MSC_VER
+        localtime_s(&local_time, &now);
+    #else
+        local_time = *std::localtime(&now);
+    #endif
+    local_time.tm_year += 1900;
+    local_time.tm_mon += 1;
+    return local_time;
+}
+
+std::array<int, 3> Utils::Time::get_current_hour_min_sec() {
+    std::time_t now = std::time(nullptr);
+    std::tm local_time;
+    #ifdef _MSC_VER
+        localtime_s(&local_time, &now);
+    #else
+        local_time = *std::localtime(&now);
+    #endif
+    return {
+        local_time.tm_hour, 
+        local_time.tm_min, 
+        local_time.tm_sec
+    };
+}
+
+unsigned int Utils::Time::time_minus_get_seconds(std::array<int, 3> subtrahend, std::array<int, 3> minuend) {
+    int hour_diff = subtrahend[0] - minuend[0];
+    int min_diff = subtrahend[1] - minuend[1];
+    int sec_diff = subtrahend[2] - minuend[2];
+    
+    return hour_diff * 3600 + min_diff * 60 + sec_diff;
+}
+
 
 void Utils::clear_terminal() {
-    Logger::log("clear_terminal", INFO);
     #ifdef _WIN32
         system("cls");
     #else

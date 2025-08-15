@@ -43,8 +43,9 @@ endif()
 # )
 add_executable(${TARGET}
     main.cpp
+    Logger.cpp
     utils.cpp
-    Fraction.cpp
+    Math/Fraction.cpp
     Vector2D.cpp
     Pos2D.cpp
     Level.cpp

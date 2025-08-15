@@ -30,21 +30,24 @@ GameBoardObjects::GameBoardObjects(Game* arg_related_game)
 }
 
 
-void GameBoardObjects::init(const Level& level) {
+void GameBoardObjects::init() {
 
-    related_game->log("GameBoardObjects::init:\n  Initializing GameBoardObjects with\n  level:" + level.get_id() + " init_done:" + std::to_string(init_done), INFO);
+    log("init()", 
+        "Initializing GameBoardObjects (init_done:" + std::to_string(init_done) + ")", 
+        Logger::INFO
+    );
     
     if (related_game == nullptr) {
-        Logger::log_and_throw("GameBoardObjects::GameBoardObjects:\n  related_game is null");
-    }
-    if ((related_game->level.get_id()) != level.get_id()) {
-        Logger::log_and_throw("GameBoardObjects::GameBoardObjects:\n  related_game->level.level_num and arg_level.level_num are not the same");
+        log_and_throw<std::logic_error>(
+            "init(const Level& level)", 
+            "related_game is null"
+        );
     }
     
     // define locals
-    Pos2D snake_init_pos = level.get_snake_init_pos();
-    Matrix<int> board = level.get_board();
-    size_t apple_init_num = level.get_apple_init_num();
+    Pos2D snake_init_pos = related_game->level.get_snake_init_pos();
+    Matrix<int> board = related_game->level.get_board();
+    size_t apple_init_num = related_game->level.get_apple_init_num();
 
 
     // update snake in related_board
@@ -88,27 +91,28 @@ void GameBoardObjects::init(const Level& level) {
         related_game->board2d[apple.pos.y][apple.pos.x] = apple.representing_num;
         empty_poses_remove(apple.pos);
     }
-    related_game->log(
-        "GameBoardObjects::init: GameBoardObjects initialized with " 
-            + std::to_string(snake->snake_segments.size()) + " snake segments, "
+    log(
+        "init()", 
+        "GameBoardObjects initialized with " 
+            "1 snake segments, "
             + std::to_string(apples.size()) + " apples, and "
             + std::to_string(walls.size()) + " walls.", 
-        INFO);
+        Logger::INFO);
 
     init_done = true;
 }
 
-void GameBoardObjects::update(Vector2D snake_velocity, Vector2D next_snake_velocity) {
-    related_game->log(
-        "GameBoardObjects::update\n  updating with snake_velocity:" + snake_velocity.to_string()
-        + ", next_snake_velocity:" + next_snake_velocity.to_string(), INFO);
+void GameBoardObjects::update(Vector2D next_snake_direction) {
+    log(
+        "update(Vector2D next_snake_direction)", 
+        + ", next_snake_direction:" + next_snake_direction.to_string(), Logger::INFO);
     throw_if_init_not_done("update");
     
-    if (snake->snake_segments.size() > 1 && snake_velocity.is_opposite_direction_with(snake->get_seg_ptr_with_index_from_head(1)->direction, false)) {
-        snake_velocity = snake->get_seg_ptr_with_index_from_head(1)->direction;
+    if (snake->snake_segments.size() > 1 && next_snake_direction.is_opposite_direction_with(snake->get_direction(), false)) {
+        next_snake_direction = snake->get_direction();
     }
     // Update snake position
-    snake_move(snake_velocity, next_snake_velocity);
+    snake_move(next_snake_direction);
     // check collision with apples
     for (Apple &apple : apples) {
         if (snake->head->pos == apple.pos) {
@@ -139,52 +143,42 @@ void GameBoardObjects::update(Vector2D snake_velocity, Vector2D next_snake_veloc
     
 }
 
-void GameBoardObjects::force_update(const Vector2D& snake_velocity, const Vector2D& next_snake_velocity) {
-    related_game->log("GameBoardObjects::force_update: snake_velocity: " + snake_velocity.to_string(), INFO);
-    update(snake_velocity, next_snake_velocity);
+void GameBoardObjects::force_update(const Vector2D& next_snake_direction) {
+    log("force_update(const Vector2D& next_snake_direction)", 
+        "next_snake_direction: " + next_snake_direction.to_string(), 
+        Logger::INFO);
+    update(next_snake_direction);
     Matrix<int> tmp_board = related_game->board2d;
     std::vector<Pos2D> tmp_empty_poses = empty_poses;
     update_board();
     update_empty_poses();
     if (tmp_board != related_game->board2d) {
-        related_game->log("GameBoardObjects::force_update: LogicErr: GameBoardObjects::update does not update board correctly\n-board from manual update: " + tmp_board.to_string() + "\nboard from objs" + related_game->board2d.to_string(), WARNING_3);
-        related_game->log("GameBoardObjects::force_update: board updated", INFO, false);
+        log("force_update", "update does not update board correctly\n-board from manual update: " + tmp_board.to_string() + "\nboard from objs" + related_game->board2d.to_string(), Logger::WARNING_3);
+        log("force_update", "board updated", Logger::INFO);
     }
     if (!Utils::Vector::have_same_elements(tmp_empty_poses, empty_poses)) {
-        related_game->log("GameBoardObjects::force_update: LogicErr: GameBoardObjects::update does not update empty_poses correctly\n-empty_poses from manual update: " + Pos2D::vector_to_string(tmp_empty_poses) + "\n-empty_poses from board        : " + Pos2D::vector_to_string(empty_poses), WARNING_3);
-        related_game->log("GameBoardObjects::force_update: empty_poses updated", INFO, false);
+        log("force_update", "update does not update empty_poses correctly\n-empty_poses from manual update: " + Pos2D::vector_to_string(tmp_empty_poses) + "\n-empty_poses from board        : " + Pos2D::vector_to_string(empty_poses), Logger::WARNING_3);
+        log("force_update", "empty_poses updated", Logger::INFO);
     }
 }
 
 
-
-const std::unique_ptr<Snake> GameBoardObjects::get_snake_copy() const {
-    throw_if_init_not_done("get_snake");
+const Snake& GameBoardObjects::get_snake() const {
+    throw_if_init_not_done("get_snake() const");
+    return snake->get_const_ref();
+}
+Snake GameBoardObjects::get_snake_copy() const {
+    throw_if_init_not_done("get_snake_copy() const");
     return snake->copy();
 }
-const std::vector<Apple> GameBoardObjects::get_apples_copy() const {
-    std::vector<Apple> apples_copy;
-    apples_copy.reserve(apples.size());
-    for (const Apple apple : apples) {
-        apples_copy.emplace_back(apple);
-    }
-    return apples_copy;
+const std::vector<Apple>& GameBoardObjects::get_apples() const {
+    return apples;
 }
-const std::vector<Wall> GameBoardObjects::get_walls_copy() const {
-    std::vector<Wall> walls_copy;
-    walls_copy.reserve(apples.size());
-    for (const Wall wall : walls) {
-        walls_copy.emplace_back(wall);
-    }
-    return walls_copy;
+const std::vector<Wall>& GameBoardObjects::get_walls() const {
+    return walls;
 }
-const std::vector<Pos2D> GameBoardObjects::get_empty_poses_copy() const {
-    std::vector<Pos2D> empty_poses_copy;
-    empty_poses_copy.reserve(empty_poses.size());
-    for (const Pos2D pos : empty_poses) {
-        empty_poses_copy.emplace_back(pos);
-    }
-    return empty_poses_copy;
+const std::vector<Pos2D>& GameBoardObjects::get_empty_poses() const {
+    return empty_poses;
 }
 
 size_t GameBoardObjects::get_snake_length() const {
@@ -195,10 +189,11 @@ size_t GameBoardObjects::get_snake_length() const {
 
 void GameBoardObjects::throw_if_init_not_done(const std::string& method_name, const std::string other_info) const {
     if (!init_done) {
-        Logger::log_and_throw(
-            "GameBoardObjects::" + method_name + 
-            ": ShouldNotBeCalled: the initialization of this has not done" 
-            + ((other_info == "")? "" : "\n"+other_info));
+        log_and_throw<std::domain_error>(
+            method_name, 
+            "ShouldNotBeCalled: the initialization of this has not done" 
+                + ((other_info == "")? "" : ("\n" + other_info))
+        );
     }
 }
 
@@ -218,14 +213,17 @@ void GameBoardObjects::throw_if_init_not_done(const std::string& method_name, co
  *   MyException if tmp_board is not nullptr and its size does not match related_board.
  */
 void GameBoardObjects::update_board(Matrix<int>* tmp_board) {
-    related_game->log("GameBoardObjects::update_board\n  updating with tmp_board:" + ((tmp_board == nullptr)? "null" : "\n"+Utils::String::add_indent(tmp_board->to_string(), 2)), INFO);
+    log("update_board(Matrix<int>* tmp_board)", 
+        "updating with tmp_board:" 
+            + ((tmp_board == nullptr)? "null" : "\n" + StringUtils::add_indent(tmp_board->to_string(), 2)), 
+        Logger::INFO);
     
     Matrix<int>& drawing_board = (related_game->board2d);
     // If a temporary board is provided, draw on the temporary board.
     if (tmp_board != nullptr) {
         if (tmp_board->num_of_row != related_game->board_size.y 
             || tmp_board->num_of_col != related_game->board_size.x) {
-            related_game->log_and_throw("GameBoardObjects::update_board:\n  tmp_board size does not match related_board size");
+            log_and_throw<std::domain_error>("update_board(Matrix<int>* tmp_board)", "tmp_board size does not match related_board size");
         }
         drawing_board = (*tmp_board);
     }
@@ -252,22 +250,31 @@ void GameBoardObjects::update_board(Matrix<int>* tmp_board) {
 }
 
 // snake
-void GameBoardObjects::snake_move(const Vector2D& snake_velocity, const Vector2D& next_snake_velocity) {
-    related_game->log("GameBoardObjects::snake_move snake_velocity:"+snake_velocity.to_string(), INFO);
-    throw_if_init_not_done("snake_move");
+void GameBoardObjects::snake_move(const Vector2D& next_snake_direction) {
+    log("snake_move(const Vector2D& next_snake_direction)", 
+        "next_snake_direction:"+next_snake_direction.to_string(), 
+        Logger::INFO);
+    throw_if_init_not_done("snake_move(const Vector2D& next_snake_direction");
     // save old_head temporarily
     SnakeSeg* old_head = snake->head;
+    
     // Update snake positions
     try {
-        snake->snake_move(snake_velocity, next_snake_velocity);
-    } catch (std::runtime_error e) {
-        related_game->log_and_throw(std::string(e.what()));
+        snake->snake_move(next_snake_direction);
+    } catch (std::exception e) {
+        log_and_throw<Logger::SeeAbove>(
+            "snake_move(const Vector2D& next_snake_direction)", 
+            e.what()
+        );
     }
 
     //update_empty_poses();
     auto it = empty_poses_find(snake->head->pos);
     if (it == empty_poses.end()) {
-        related_game->log("GameBoardObjects::snake_move: new_head_pos not found in empty_poses (a collision of head with other objs should happen later)", INFO);
+        log("snake_move(const Vector2D& next_snake_direction)", 
+            "new_head_pos not found in empty_poses (a collision of head with other objs should happen later)", 
+            Logger::INFO
+        );
     } else {
         (*it) = snake->previous_tail->pos;
     }
@@ -283,7 +290,7 @@ void GameBoardObjects::snake_move(const Vector2D& snake_velocity, const Vector2D
 }
 
 void GameBoardObjects::snake_grow() {
-    related_game->log("GameBoardObjects::snake_grow", INFO);
+    log("snake_grow()", "function start", Logger::INFO);
     throw_if_init_not_done("snake_grow");
     // Update snake positions
     snake->snake_grow();
@@ -298,20 +305,22 @@ void GameBoardObjects::snake_grow() {
 }
 
 // apple
+
+// private
 void GameBoardObjects::apple_randomize_pos(Apple &apple, bool eaten_by_snake) {
-    related_game->log("GameBoardObjects::apple_randomize_pos apple_original_pos:"+apple.pos.to_string()+" eaten_by_snake:"+std::to_string(eaten_by_snake), INFO);
+    log("apple_randomize_pos", "apple_original_pos:"+apple.pos.to_string()+" eaten_by_snake:"+std::to_string(eaten_by_snake), Logger::INFO);
     Pos2D tmp = apple.pos;
     // update_apple_pos
     apple.pos = empty_poses[rand() % empty_poses.size()];
     if (tmp == apple.pos) {
-        std::string msg = "GameBoardObjects::apple_randomize_pos: LogicErr: Apple's new position(" + apple.pos.to_string() + ") should not be the same as the old position(" + tmp.to_string() + ")!";
-        related_game->log_and_throw(msg);
+        std::string msg = "apple_randomize_pos: LogicErr: Apple's new position(" + apple.pos.to_string() + ") should not be the same as the old position(" + tmp.to_string() + ")!";
+        log_and_throw<std::logic_error>("apple_randomize_pos(Apple &apple, bool eaten_by_snake)", msg);
     }
 
     if (eaten_by_snake) {
         if (empty_poses_find(tmp) != empty_poses.end()) {
             // snake_move did not update empty_poses
-            related_game->log("GameBoardObjects::apple_randomize_pos: LogicErr: snake_move did not update empty_poses", WARNING_3);
+            log("apple_randomize_pos", "LogicWarning:snake_move did not update empty_poses", Logger::WARNING_3);
             update_empty_poses(); // force_update
         }
         related_game->board2d[tmp.y][tmp.x] = SnakeSeg::head_representing_num;
@@ -330,30 +339,34 @@ void GameBoardObjects::apple_randomize_pos(Apple &apple, bool eaten_by_snake) {
 // wall
 
 // empty_poses
+
+// private
 void  GameBoardObjects::update_empty_poses(Pos2D* top_left_of_range, Size2D* size_of_range) {
     
     Pos2D default_top_left(0, 0);
     Size2D default_size(related_game->board_size.x, related_game->board_size.y);
     // Initialize local variables and checking arguments
     if (top_left_of_range == nullptr && size_of_range == nullptr) {
-        related_game->log("GameBoardObjects::update_empty_poses\n  top_left_of_range:null, size_of_range:null", INFO);
+        log("update_empty_poses", "top_left_of_range:null, size_of_range:null", Logger::INFO);
         top_left_of_range = &default_top_left;
         size_of_range = &default_size;
         empty_poses.clear();
     } else if (top_left_of_range == nullptr || size_of_range == nullptr) {
-        std::string msg = "GameBoardObjects::update_empty_poses: InvalidArgument: top_left_of_range and size_of_range should be null tgt or not null tgt";
-        related_game->log_and_throw(msg);
+        log_and_throw<std::invalid_argument>("update_empty_poses(Pos2D* top_left_of_range, Size2D* size_of_range)", "top_left_of_range and size_of_range should be null tgt or not null tgt");
     } else {
         // both top_left_of_range and size_of_range are not null
         if (top_left_of_range->x < 0 || top_left_of_range->y < 0) {
-            std::string msg = "GameBoardObjects::update_empty_poses: InvalidArgument: top_left_of_range should be non-negative";
-            related_game->log_and_throw(msg);
+            log_and_throw<std::invalid_argument>("update_empty_poses(Pos2D* top_left_of_range, Size2D* size_of_range)", "top_left_of_range should be non-negative");
         }
         if (top_left_of_range->x + size_of_range->x > related_game->board_size.x
             || top_left_of_range->y + size_of_range->y > related_game->board_size.y) {
-            related_game->log_and_throw("GameBoardObjects::update_empty_poses: InvalidArgument: top_left_of_range + size_of_range should be in range of related_board");
+            log_and_throw<std::invalid_argument>("update_empty_poses(Pos2D* top_left_of_range, Size2D* size_of_range)", "top_left_of_range + size_of_range should be in range of related_board");
         }
-        related_game->log("GameBoardObjects::update_empty_poses\n  top_left_of_range:"+top_left_of_range->to_string()+" size_of_range:"+size_of_range->to_string(), INFO);
+        related_game->log(
+            "update_empty_poses(Pos2D* top_left_of_range, Size2D* size_of_range)", 
+            "top_left_of_range:" + top_left_of_range->to_string() 
+                + " size_of_range:" + size_of_range->to_string(), 
+            Logger::INFO);
     }
     // main logic
     std::vector<Pos2D> poses_to_remove;
@@ -368,15 +381,20 @@ void  GameBoardObjects::update_empty_poses(Pos2D* top_left_of_range, Size2D* siz
         }
     }
     empty_poses_remove(poses_to_remove);
-    related_game->log("GameBoardObjects::update_empty_poses updated", INFO);
+    related_game->log("update_empty_poses(Pos2D* top_left_of_range, Size2D* size_of_range)", "updated", Logger::INFO);
 }
 
+// private
 std::vector<Pos2D>::iterator GameBoardObjects::empty_poses_find(Pos2D pos) {
     return std::find(empty_poses.begin(), empty_poses.end(), pos);
 }
 
+// private
 std::vector<Pos2D>::iterator GameBoardObjects::empty_poses_remove(const Pos2D &pos_to_remove) {
-    related_game->log("GameBoardObjects::empty_poses_remove pos_to_remove: "+pos_to_remove.to_string(), INFO);
+    related_game->log(
+        "empty_poses_remove(const Pos2D &pos_to_remove)", 
+        "pos_to_remove: "+pos_to_remove.to_string(), 
+        Logger::INFO);
     auto it = empty_poses.begin();
     for (; it != empty_poses.end(); ++it) {
         if (*it == pos_to_remove) {
@@ -386,8 +404,12 @@ std::vector<Pos2D>::iterator GameBoardObjects::empty_poses_remove(const Pos2D &p
     return it;
 }
 
+// private
 std::vector<Pos2D> GameBoardObjects::empty_poses_remove(std::vector<Pos2D> poses_to_remove) {
-    related_game->log("GameBoardObjects::empty_poses_remove\n  poses_to_remove: "+Pos2D::vector_to_string(poses_to_remove), INFO);
+    log("empty_poses_remove(std::vector<Pos2D> poses_to_remove)", 
+        "poses_to_remove: "+Pos2D::vector_to_string(poses_to_remove), 
+        Logger::INFO
+    );
     
     bool erased;
     for (auto it = empty_poses.begin(); it != empty_poses.end(); ) {
@@ -418,4 +440,9 @@ std::vector<Pos2D> GameBoardObjects::empty_poses_remove(std::vector<Pos2D> poses
     return poses_to_remove;
 }
 
+// logs
+
+void GameBoardObjects::log(const std::string& where, const std::string& message, const Logger::LogLevel& lev) const {
+    related_game->log("GameBoardObjects::" + where, message, lev);
+}
 // --end of file
