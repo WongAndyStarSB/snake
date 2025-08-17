@@ -65,6 +65,7 @@ class Game {
         void run();
         void display(std::ostream& os, int n = 0) const;
         void record(const std::string& message , bool add_timestamp = true);
+        void cliClearScreen() const;
 
         void throw_if_init_not_done(const std::string& method_name = "", const std::string other_info = "") const;
         std::string add_prefix_and_indent_for_log(const std::string& message, bool step_and_snake_pos_prefix) const;
