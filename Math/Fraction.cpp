@@ -15,7 +15,7 @@ int Fraction::find_gcf(int n1, int n2) {
         throw std::invalid_argument("GCF is undefined for (0, 0)");
     }
     int tmp;
-    if (n1 < n2) {
+    if (std::abs(n1) < std::abs(n2)) {
         std::swap(n1, n2);
     }
     while (n2 != 0) {
@@ -30,7 +30,7 @@ long long Fraction::find_gcf(long long n1, long long n2) {
         throw std::invalid_argument("GCF is undefined for (0, 0)");
     }
     long long tmp;
-    if (n1 < n2) {
+    if (std::abs(n1) < std::abs(n2)) {
         std::swap(n1, n2);
     }
     while (n2 != 0) {
