@@ -1,8 +1,9 @@
 
-LOG.txt
 .vs
 .vscode
-snake-Windows.exe
-snake-Windows.pdb
+*.pdb
+*.exe
+logs/
 build/
 PreviousLogs/
+GameRecords/

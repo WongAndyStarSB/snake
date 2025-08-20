@@ -34,6 +34,8 @@ public:
     void snake_move(Vector2D next_direction);
     void snake_grow();
 
+    // SnakeSeg get_future_head() const;
+
 private:
     template <typename ExceptionType>
     [[noreturn]] void log_and_throw(const std::string& where, const std::string& message) {

@@ -7,6 +7,7 @@
 #include "StringUtils.hpp"
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 #include <chrono>
 
 
@@ -71,10 +72,8 @@ void Game::init(std::string new_lev_id) {
     game_board_objects = std::make_unique<GameBoardObjects>(this);
     game_board_objects->init();
 
-    while (!snake_velocity_queue.empty()) {
-        snake_velocity_queue.pop();
-    }
-    snake_velocity_queue.push(Vector2D(0, 0)); // initial velocity is (0, 0)
+    
+    snake_direction = Vector2D(0, 0); // initial velocity is (0, 0)
 
     init_done = true;
 }
@@ -89,15 +88,18 @@ GameStopReason Game::get_stop_reason() {
 
 void Game::run() {
     log("run()", "function started", Logger::INFO);
-    std::array<int, 3> start_time = Utils::Time::get_current_hour_min_sec();
     display(std::cout);
+    std::array<int, 3> start_time = {0, 0, 0};
     SDL_Event event;
 
     std::chrono::high_resolution_clock::time_point tmp_start, tmp_end;
     unsigned int tmp_duration; // in microseconds
+    start_moving();
     while (true) {
         tmp_start = std::chrono::high_resolution_clock::now();
-
+        if (this->status != RUNNING) {
+            start_time = Utils::Time::get_current_hour_min_sec();
+        }
         if (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 return;
@@ -165,11 +167,11 @@ void Game::run() {
 
 void Game::add_velocity_to_queue(Vector2D velocity) {
     if (
-        velocity.is_opposite_direction_with(snake_velocity_queue.front(), false)
+        velocity.is_opposite_direction_with(snake_direction, false)
         && game_board_objects->get_snake_length() > 1) {
-        snake_velocity_queue.push(snake_velocity_queue.front());
+        ;
     } else {
-        snake_velocity_queue.push(velocity);
+        snake_direction = velocity;
     }
 }
 
@@ -179,11 +181,9 @@ void Game::update(Vector2D next_snake_velocity, std::ostream& os) {
         log("update", "update skipped as game have been stopped", Logger::INFO);
         return;
     }
-    if (snake_velocity_queue.empty()) {
-        log_and_throw<std::logic_error>("update(Vector2D next_snake_velocity, std::ostream& os)", "NEVER: snake_velocity_queue is empty, should not happen");
-    }
+    
     if (frame_num % snake_period_in_frame_per_square == 0) {
-        add_velocity_to_queue(next_snake_velocity);
+        snake_direction = next_snake_velocity;
         move_snake();
         if (status == STOP) {
             return;
@@ -235,23 +235,20 @@ void Game::win() {
 
 
 void Game::move_snake(bool force) {
-    Vector2D current_direction = snake_velocity_queue.front();
-    snake_velocity_queue.pop();
-    Vector2D next_velocity = snake_velocity_queue.front();
     throw_if_init_not_done("move_snake");
     if (status == STOP) {
         log("move_snake(bool force)", "move_snake skipped as game have been stopped", Logger::INFO);
         return;
     }
-    if (current_direction == Vector2D(0, 0)) {
+    if (snake_direction == Vector2D(0, 0)) {
         log("move_snake(bool force)", "move_snake skipped as direction == (0, 0)", Logger::INFO);
         return;
     }
     try {
         if (force) {
-            game_board_objects->force_update(next_velocity);
+            game_board_objects->force_update(snake_direction);
         } else {
-            game_board_objects->update(next_velocity);
+            game_board_objects->update(snake_direction);
         }
         ++num_of_step;
     } catch (std::runtime_error e) {
@@ -288,6 +285,7 @@ void Game::display(std::ostream& os, int n) const {
         auto [c, r] = pos.get_as_pair();
         display_str_matrix[r][c*3+1] = '-';
     }
+    
     for (auto it = snake.snake_segments.begin(); it != snake.snake_segments.end(); ++it) {
         auto [c, r] = (*it)->pos.get_as_pair();
         col_num_of_str = c*3+1;
@@ -307,11 +305,11 @@ void Game::display(std::ostream& os, int n) const {
         }
     }
     os << display_str_matrix.join_into_string("\n", "")
-        + "\n\nlevel: " + level.get_id() 
-        + "\nsnake_length: " + std::to_string(game_board_objects->get_snake_length())
-        + "\nstep_no.: " + std::to_string(this->num_of_step)
-        + "\ntime(s): " + std::to_string(this->time_used_in_s)
-        + "\nframe_num: " + std::to_string(this->frame_num)
+       << "\n\nlevel: " << level.get_id() 
+       << "\nsnake_length: " << std::to_string(game_board_objects->get_snake_length())
+       << "\nstep_no.: " << std::to_string(this->num_of_step)
+       << "\ntime(s): " << std::to_string(this->time_used_in_s)
+       << "\nframe_num: " << std::to_string(this->frame_num)
     ;
 
 }

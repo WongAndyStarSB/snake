@@ -33,6 +33,10 @@ enum GameStatus {
     STOP = 0,
     RUNNING = 1
 };
+enum GameRunStatus {
+    _PAUSED,
+    FINISHED
+};
 
 class Game {
     private:
@@ -44,7 +48,7 @@ class Game {
         SDL_Renderer* renderer; // non-owning // don't delete
         Vector2D player_direction = Vector2D::get_zero_vector();
         size_t num_of_step = 0;
-        std::queue<Vector2D> snake_velocity_queue;
+        Vector2D snake_direction = Vector2D::get_zero_vector();
         std::unique_ptr<GameBoardObjects> game_board_objects = nullptr;
         unsigned int time_used_in_s = 0;
 
