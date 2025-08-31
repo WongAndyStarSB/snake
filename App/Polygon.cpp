@@ -5,9 +5,9 @@
 
 #include <vector>
 
-#include "Math/ComplexNumber.hpp"
+#include "../Math/ComplexNumber.hpp"
 
-namespace snake {
+namespace Display {
 
 using Vector2d = Math::Vector2d;
 

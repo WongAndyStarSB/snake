@@ -7,7 +7,7 @@
 #include "Screen.hpp"
 #include "Logger.hpp"
 
-namespace snake {
+namespace Display {
 
 class MainScreen : public Screen {
 private:
@@ -24,7 +24,7 @@ private:
 
 };
 
-}
+} // namespace
 
 
 

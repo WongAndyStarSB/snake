@@ -42,10 +42,12 @@ int main() {
     srand(1);
     levels::init_testing_levels();
     levels::init_levels(); // Initialize levels
-
-    const Level& lev = Level::find_level("0001");
+    
+    std::string lev_id;
+    std::getline(std::cin, lev_id);
+    const Level& lev = Level::find_level(lev_id);
     Game game(lev);
-    game.init();
+    game.init(window, renderer, std::cout);
     game.start();
     
     // Logger::log_and_throw("", "");

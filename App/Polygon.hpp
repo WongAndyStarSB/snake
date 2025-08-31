@@ -16,7 +16,7 @@
 #include "Math/Math.hpp"
 #include "SdlUtils.hpp"
 
-namespace snake {
+namespace Display {
 
 
 class Polygon { // positioned polygon with NumOfSides sides
@@ -59,6 +59,9 @@ public:
     explicit Polygon(const ::SDL_FPoint& arg_centre_pos, const size_t& arg_num_of_sides);
     // uses static default variables
     explicit Polygon(const ::SDL_FPoint& arg_centre_pos, const std::vector<Vector2d>& arg_vertices);
+
+    // copy constructor
+    Polygon(const Polygon& other) = default;
 
     // default constructor
     explicit Polygon();

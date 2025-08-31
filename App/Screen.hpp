@@ -8,10 +8,13 @@
 #include <vector>
 
 #include "Logger.hpp"
+#include "ScreenObject.hpp"
 
-namespace snake {
+namespace Display {
+
 class Screen {
 private:
+    std::vector<ScreenObject> objs;
     // Helper function to log and throw exceptions
     template <typename ExceptionType>
     [[noreturn]] void log_and_throw(const std::string& where, const std::string& message) {

@@ -6,26 +6,27 @@
 #include <SDL3/SDL_events.h>
 #include <memory>
 #include <functional>
+#include <optional>
 #include "Polygon.hpp"
 
-namespace snake {
+namespace Display {
 
 
 
 class ScreenObject {
-    using drawFuncPtrT = std::function<void(SDL_Renderer*)>;
-    typedef void (*eventHandlerFuncPtrT)();
+    using DrawFuncPtrT = std::function<void()>;
+    typedef void (*EventHandlerFuncPtrT)();
 
-    private:
+    protected:
 
         SDL_Window* window; // non-owning
         SDL_Renderer* renderer; // non-owning
         std::unique_ptr<Polygon> polygon;
         std::unique_ptr<Polygon> show_polygon = nullptr;
-        bool is_visible;
-        bool is_clickable;
-        eventHandlerFuncPtrT event_handler_func_ptr = nullptr;
-        drawFuncPtrT draw_func_ptr = nullptr; // pointer to the draw function
+        bool is_visible = true;
+        bool is_clickable = false;
+        EventHandlerFuncPtrT event_handler_func_ptr = nullptr;
+        DrawFuncPtrT draw_func = nullptr; // the draw function
         
         mutable bool is_changeable = true;
 
@@ -39,9 +40,10 @@ class ScreenObject {
         // throw
         void helperThrowIfNonChangeable(const std::string& func_name) const;
 
-        void draw() const {
-            draw_func_ptr(renderer);
-        }
+        // private setters
+
+        // void privateSetCentrePos(const SDL_FPoint& new_centre_pos);
+
 
         void log(const std::string& where, const std::string& message, Logger::LogLevel level = Logger::INFO) const {
             Logger::log("ScreenObject::" + where, message, level);
@@ -61,11 +63,33 @@ class ScreenObject {
             SDL_Renderer* arg_renderer
         ) : window(arg_window), renderer(arg_renderer) 
         {
-            helperCheckWindowAndRenderer();
-            polygon = {std::make_unique<Polygon>(arg_window, arg_renderer)};
-            draw_func_ptr = [this](SDL_Renderer* r){ this->polygon->draw(r); }; 
+            try {
+                helperCheckWindowAndRenderer();
+                polygon = {std::make_unique<Polygon>(arg_window, arg_renderer)};
+                draw_func = [this](){ this->polygon->draw(); }; 
+            } catch (std::exception& e) {
+                logAndThrow<Logger::SeeAbove>(
+                    "ScreenObject constructor", 
+                    e.what()
+                );
+            }
         }
 
+        void setBasics(
+            const Polygon& p, 
+            bool visibility, 
+            bool clickability,
+            bool changeability = false
+        );
+        void setAll(
+            const Polygon& p, 
+            bool visibility, 
+            bool clickability, 
+            const Polygon& show_p,
+            const EventHandlerFuncPtrT& ehfp,
+            const DrawFuncPtrT& df,
+            bool changeability = false
+        );
 
         void render() const {
             if (is_visible) {
@@ -88,54 +112,30 @@ class ScreenObject {
         void setCentrePos(const SDL_FPoint& new_centre_pos);
         void setPolygonNumOfSides(const size_t &new_num_of_sides);
         void setPolygonVertices(const std::vector<Math::Vector2d>& new_vertices);
-        void setPolygon(Polygon* new_polygon) {
-            helperCheckIsPolygonNotNull();
-            polygon.reset(new_polygon);
-            helperCheckWindowAndRenderer();
-            helperCheckPolygonWindowAndRenderer();
-        }
+        void setPolygon(const Polygon& new_polygon);
+        void setPolygon(Polygon* new_polygon);
     
-        void setOutlineColor(const SDL_Color& new_outline_color) { polygon->outline_color = new_outline_color; }
-        void setFillColor(const SDL_Color& new_fill_color) { polygon->fill_color = new_fill_color; }
-        void setVisibility(bool visible) { is_visible = visible; }
-        void setClickability(bool clickable) { is_clickable = clickable; }
+        void setOutlineColor(const SDL_Color& new_outline_color);
+        void setFillColor(const SDL_Color& new_fill_color);
+        void setVisibility(bool visible);
+        void setClickability(bool clickable);
 
         void setIsChangeable(bool new_is_changeable) { is_changeable = new_is_changeable; }
         
-        bool isInside(int x, int y) const { return polygon->isInside(x, y); }
-        bool isFocusedByMouse(const SDL_Event& event) const { // return true if the event MOUSE is focused on this object
-            if (!is_visible) {
-                return false;
-            }
-            if (event.type == SDL_EVENT_MOUSE_MOTION) {
-                if (polygon->isInside(event.motion.x, event.motion.y)) {
-                    log("isFocusedByMouse", "focused by mouse at (" + std::to_string(event.motion.x) + ", " + std::to_string(event.motion.y) + ")");
-                    return true;
-                }
-            }
-        }
-        bool isClickedByMouse(const SDL_Event& event) const {
-            if (!is_clickable || !is_visible) {
-                return false;
-            }
-            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-                int x = event.button.x;
-                int y = event.button.y;
-                if (polygon->isInside(x, y)) {
-                    log("isClickedByMouse", "clicked by mouse at (" + std::to_string(x) + ", " + std::to_string(y) + ")");
-                    return true;
-                }
-            }
-            return false;
-        }
+        bool isInside(int x, int y) const;
+        bool isFocusedByMouse(const SDL_Event& event) const;
+        bool isClickedByMouse(const SDL_Event& event) const;
 
+        void draw() const {
+            draw_func();
+        }
         
         
 
 }; // class ScreenObject
 
 
-} // namespace snake
+} // namespace
 
 
 

@@ -44,18 +44,35 @@ Game::Game (
     {
 }
 // copy constructor
-//Game::Game(const Game&) = delete; // disable copy constructor
+// Game::Game(const Game&) = delete; // disable copy constructor
 // assignment operator
 // Game& Game::operator=(const Game&) = delete; // disable copy assignment
 // move constructor
 // Game::Game(Game&&) = default; // enable move constructor
 
-void Game::init(std::string new_lev_id) {
+void Game::init(
+    SDL_Window* w, SDL_Renderer* r, 
+    std::ostream& os_, 
+    std::string new_lev_id
+) {
     Logger::log(
-        "Game::init(std::string new_lev_id)", 
+        "Game::init(SDL_Window* w, SDL_Renderer* r, std::ostream& os, std::string new_lev_id", 
         "initializing", 
         Logger::INFO
     );
+    if (window == nullptr || renderer == nullptr) {
+        log_and_throw<std::runtime_error>(
+            "Game::init(SDL_Window* w, SDL_Renderer* r, std::ostream& os, std::string new_lev_id",
+            "window or renderer is nullptr"
+        );
+    } else {
+        window = w;
+        renderer = r;
+    }
+    os = &os_;
+    init_lev(new_lev_id);
+}
+void Game::init_lev(std::string new_lev_id) {
     if (new_lev_id != "") {
         level = Level::find_level(new_lev_id).get_copy();
     }
@@ -88,7 +105,7 @@ GameStopReason Game::get_stop_reason() {
 
 void Game::run() {
     log("run()", "function started", Logger::INFO);
-    display(std::cout);
+    display();
     std::array<int, 3> start_time = {0, 0, 0};
     SDL_Event event;
 
@@ -133,7 +150,7 @@ void Game::run() {
         
         
         if (status == RUNNING) {
-            update(player_direction, std::cout);
+            update(player_direction);
             time_used_in_s = 
                 Utils::Time::time_minus_get_seconds(
                     Utils::Time::get_current_hour_min_sec(), start_time
@@ -175,7 +192,7 @@ void Game::add_velocity_to_queue(Vector2D velocity) {
     }
 }
 
-void Game::update(Vector2D next_snake_velocity, std::ostream& os) {
+void Game::update(Vector2D next_snake_velocity) {
     throw_if_init_not_done("update(Vector2D next_snake_velocity, std::ostream& os)");
     if (status == STOP) {
         log("update", "update skipped as game have been stopped", Logger::INFO);
@@ -190,12 +207,12 @@ void Game::update(Vector2D next_snake_velocity, std::ostream& os) {
         }
     }
     
-    Logger::log("clear_terminal", 
-        std::to_string(Utils::Time::duration_used_in_function(Utils::clear_terminal)),
-        Logger::DEBUG
-    );
+    // Logger::log("clear_terminal", 
+    //     std::to_string(Utils::Time::duration_used_in_function()),
+    //     Logger::DEBUG
+    // );
+    cliClearScreen();
     display(
-        os, 
         (frame_num % snake_period_in_frame_per_square) * 3 / snake_period_in_frame_per_square
     ); // display the game board
 }
@@ -214,7 +231,7 @@ void Game::start() {
     start_game();
 }
 void Game::restart(std::string new_lev_id) {
-    init(new_lev_id);
+    init_lev(new_lev_id);
     
     start_game();
 }
@@ -260,8 +277,8 @@ void Game::move_snake(bool force) {
 
 
 // private
-void Game::display(std::ostream& os, int n) const {
-    throw_if_init_not_done("display(std::ostream& os, int n)");
+void Game::display(int n) const {
+    throw_if_init_not_done("display(int n)");
     
     Matrix<char> display_str_matrix(board_size.y, board_size.x*3, ' ');
     int col_num_of_str;
@@ -304,7 +321,7 @@ void Game::display(std::ostream& os, int n) const {
             }
         }
     }
-    os << display_str_matrix.join_into_string("\n", "")
+    (*os) << display_str_matrix.join_into_string("\n", "")
        << "\n\nlevel: " << level.get_id() 
        << "\nsnake_length: " << std::to_string(game_board_objects->get_snake_length())
        << "\nstep_no.: " << std::to_string(this->num_of_step)
@@ -347,7 +364,9 @@ void Game::record(const std::string& message, bool add_timestamp) {
     log_file.flush();
 }
 
-
+void Game::cliClearScreen() const {
+    (*os) << std::string(30, '\n');
+}
 
 
 // static

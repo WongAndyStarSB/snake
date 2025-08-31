@@ -2,6 +2,7 @@
 #define COLOR_CONSTANTS_HPP
 
 namespace ColorConstants {
+    
 const uint8_t BLACK_RGBA[] = {0, 0, 0, 255};
 const uint8_t WHITE_RGBA[] = {255, 255, 255, 255};
 

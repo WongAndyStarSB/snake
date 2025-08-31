@@ -34,8 +34,8 @@ enum GameStatus {
     RUNNING = 1
 };
 enum GameRunStatus {
-    _PAUSED,
-    FINISHED
+    NOT_REFRESHING,
+    REFRESHING
 };
 
 class Game {
@@ -43,19 +43,21 @@ class Game {
         bool init_done = false;
         GameStatus status = STOP;
         GameStopReason stop_reason = PREPARING;
+        GameRunStatus run_status = NOT_REFRESHING;
 
         SDL_Window* window; // non-owning // don't delete
         SDL_Renderer* renderer; // non-owning // don't delete
+        std::ostream* os; // non-owning // don't delete
         Vector2D player_direction = Vector2D::get_zero_vector();
         size_t num_of_step = 0;
         Vector2D snake_direction = Vector2D::get_zero_vector();
         std::unique_ptr<GameBoardObjects> game_board_objects = nullptr;
         unsigned int time_used_in_s = 0;
 
-        unsigned int snake_velocity_in_square_per_ks = 2000;
+        unsigned int snake_velocity_in_square_per_ks = 6000; // have to be < frame_rate*1000
 
         unsigned int frame_num = 0;
-        const uint8_t FRAME_RATE = 30;
+        const uint8_t FRAME_RATE = 60;
         const Math::Fraction MICROS_PER_FRAME_FRACTION {(int)1000000, static_cast<int>(FRAME_RATE)}; // 1000000 microseconds in a second divided by frame rate
         const unsigned int MICROS_PER_FRAME = MICROS_PER_FRAME_FRACTION.floor(); // Convert to milliseconds
 
@@ -67,7 +69,7 @@ class Game {
         void add_velocity_to_queue(Vector2D velocity);
         void move_snake(bool force = false);
         void run();
-        void display(std::ostream& os, int n = 0) const;
+        void display(int n = 0) const;
         void record(const std::string& message , bool add_timestamp = true);
         void cliClearScreen() const;
 
@@ -96,11 +98,12 @@ class Game {
         Game& operator=(const Game&) = delete; // disable copy assignment
         Game(Game&&) = default; // enable move constructor
 
-        void init(std::string new_lev_id = "");
+        void init(SDL_Window* w, SDL_Renderer* r, std::ostream& os_, std::string new_lev_id = "");
+        void init_lev(std::string new_lev_id = "");
         void start();
         void restart(std::string new_lev_id = "");
 
-        void update(Vector2D next_snake_velocity, std::ostream& os);
+        void update(Vector2D next_snake_velocity);
         void pause();
         void resume();
         
