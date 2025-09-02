@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <iterator>
 
-#include "Logger.hpp"
+#include "../Logger/Logger.hpp"
 
 class Vector3d {
     public:

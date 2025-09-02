@@ -41,18 +41,24 @@ endif()
 # add_executable(${TARGET}
 #     testing.cpp
 # )
-add_executable(${TARGET}
-    main.cpp
-    Logger.cpp
-    utils.cpp
-    Math/Fraction.cpp
-    Vector2D.cpp
-    Pos2D.cpp
-    Level.cpp
-    Snake.cpp
-    Game.cpp
-    GameBoardObject.cpp
-    GameBoardObjects.cpp
+add_executable(
+    ${TARGET}
+    ../Math/Fraction.cpp
+)
+
+# Get all source files in a specific folder (e.g., 'SnakeGame') using a variable
+
+file(GLOB UTILS_SOURCES "Utils/*.cpp")
+file(GLOB LOGGER_SOURCES "Logger/*.cpp")
+file(GLOB MATH_SOURCES "Math/*.cpp")
+file(GLOB SNAKE_GAME_SOURCES "SnakeGame/*.cpp")
+
+# Add the source files to the executable target
+target_sources(${TARGET} PRIVATE 
+    ${UTILS_SOURCES}
+    ${LOGGER_SOURCES}
+    # ${MATH_SOURCES}
+    ${SNAKE_GAME_SOURCES}
 )
 
 # 鏈接SDL3庫

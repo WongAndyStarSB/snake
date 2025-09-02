@@ -2,7 +2,7 @@
 #define SIZE2D_HPP
 
 #include <exception>
-
+#include "Vector2D.hpp"
 
 class InvalidArgumentError : public std::exception {
     private:

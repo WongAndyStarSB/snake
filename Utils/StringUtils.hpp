@@ -54,7 +54,7 @@ namespace StringUtils {
         } else if constexpr (std::is_same<ExceptionType, std::underflow_error>::value) {
             return "std::underflow_error";
         } else {
-            return "unknown_exception(" + ExceptionType().what() + ")";
+            return "unknown_exception";
         }
     }
 

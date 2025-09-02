@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 #include <ctime>
-#include "StringUtils.hpp"
+#include "../Utils/StringUtils.hpp"
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -14,8 +14,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_timer.h>
 
-#include "StringUtils.hpp"
-#include "Logger.hpp"
+#include "../Utils/StringUtils.hpp"
+#include "../Logger/Logger.hpp"
 
 
 

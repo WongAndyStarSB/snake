@@ -3,7 +3,7 @@
 #include <ctime>
 #include <chrono>
 #include <tuple>
-#include "Logger.hpp"
+// #include "Logger.hpp"
 
 std::string Utils::String::char_to_string(const char c) {
     return std::string(1, c);

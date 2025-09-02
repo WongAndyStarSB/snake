@@ -1,5 +1,5 @@
 #include "Level.hpp"
-#include "Logger.hpp"
+#include "../Logger/Logger.hpp"
 
 #include <stdexcept>
 

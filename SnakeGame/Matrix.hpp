@@ -4,6 +4,8 @@
 #include <vector>
 #include <exception>
 
+
+
 class UnequalRowSizeException : public std::exception {
     public:
         inline const char* what() const throw() override {
@@ -160,5 +162,7 @@ class Matrix {
         }
 
 };
+
+
 
 #endif

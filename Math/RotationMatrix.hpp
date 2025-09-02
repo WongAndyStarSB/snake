@@ -7,7 +7,7 @@
 #include "Matrix.hpp"
 #include "Angle.hpp"
 #include "Vector.hpp"
-#include "Logger.hpp"
+#include "../Logger/Logger.hpp"
 
 namespace Math {
 
@@ -17,10 +17,10 @@ class RotationMatrix : protected SquareMatrix<N> {
     static_assert(N > 0, "RotationMatrix: N(size) must be positive");
 
     private:
-        Angle angle;
+        Angle m_angle;
 
     public:
-        static double precision = 1e-6;
+        double m_precision = 1e-6;
     
     private:
         void log(const std::string& where, const std::string& what, const Logger::LogLevel& lev);
@@ -36,11 +36,11 @@ class RotationMatrix : protected SquareMatrix<N> {
         inline RotationMatrix(const RotationMatrix<N>& other) = default;
         inline RotationMatrix(RotationMatrix<N>&& other) = default;
 
-        inline Angle getAngle() const { return angle; }
-        inline const Angle& getAngleConstReference() const { return angle; }
-        inline Angle& getAngleReference() { return angle; }
+        inline Angle getAngle() const { return m_angle; }
+        inline const Angle& getAngleConstReference() const { return m_angle; }
+        inline Angle& getAngleReference() { return m_angle; }
 
-        inline Angle& setAngle(const Angle& rad) { angle = rad; }
+        inline Angle& setAngle(const Angle& rad) { m_angle = rad; }
 
         template <size_t ColN>
         Matrix<N, ColN> operator*(const Matrix<N, ColN>& mat);

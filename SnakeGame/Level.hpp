@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <memory>
 
-#include "Logger.hpp"
+#include "../Logger/Logger.hpp"
 #include "Matrix.hpp"
 #include "Pos2D.hpp"
 

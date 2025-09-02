@@ -6,10 +6,10 @@
 #include <cassert>
 #include <vector>
 
-#include "ostream_overloads.hpp"
+#include "../Utils/ostream_overloads.hpp"
 
-#include "utils.hpp"
-#include "Logger.hpp"
+#include "../Utils/utils.hpp"
+#include "../Logger/Logger.hpp"
 #include "Vector2D.hpp"
 #include "Pos2D.hpp"
 #include "Size2D.hpp"

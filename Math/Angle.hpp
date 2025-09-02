@@ -2,7 +2,7 @@
 #define ANGLE_HPP
 
 
-#include "Logger.hpp"
+#include "../Logger/Logger.hpp"
 #include "MathUtils.hpp"
 
 namespace Math {

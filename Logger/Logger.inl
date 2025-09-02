@@ -4,7 +4,7 @@
 
 #include "Logger.hpp"
 #include <type_traits>
-#include "StringUtils.hpp"
+#include "../Utils/StringUtils.hpp"
 
 namespace Logger {
 

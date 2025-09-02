@@ -2,8 +2,8 @@
 #define VECTOR_HPP
 
 #include <array>
-#include "Logger.hpp"
-#include "Utils.hpp"
+#include "../Logger/Logger.hpp"
+#include "../Utils/utils.hpp"
 
 namespace Math {
 
@@ -17,8 +17,8 @@ protected:
 public:
     Vector(std::array<double, Dimension> arr);
     Vector(const std::initializer_list<double>& il);
-    Vector(const Vector&) = default;
-    Vector(Vector&&) = default;
+    Vector(const Vector&);
+    Vector(Vector&&);
     explicit Vector(const double& val = 0.0);
     // explicit Vector(const double& x, const double& y);
     // explicit Vector(const double& x, const double& y, const double& z);
@@ -67,7 +67,7 @@ public:
 
 private:
     template <typename ExceptionType>
-    void logAndThrow(std::string where, std::string message);
+    void logAndThrow(const std::string& where, const std::string& message) const;
 };
 
 } // namespace Math

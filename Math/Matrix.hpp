@@ -7,10 +7,11 @@
 #include <string>
 #include <stdexcept>
 
-#include "Logger.hpp"
-#include "MathUtils.hpp"
+#include "../Logger/Logger.hpp"
 
 namespace Math {
+#include "MathUtils.hpp"
+
 
 template <size_t RowN, size_t ColN>
 class Matrix { // fixed sized Matrix with elem type using double
@@ -21,13 +22,13 @@ class Matrix { // fixed sized Matrix with elem type using double
     public:
         std::array<std::array<double, ColN>, RowN> data;
     public:
-        static double precision = 1e-6;
+        double m_precision = 1e-6;
     public:
         inline constexpr std::pair<size_t, size_t> size() const { return std::make_pair(RowN, ColN); }
         inline constexpr size_t num_of_row() const { return RowN; }
         inline constexpr size_t num_of_col() const { return ColN; }
 
-        constexpr Matrix(std::initializer_list<std::initializer_list<double>> arg_data); // using initializer_list, don't use explicit
+        constexpr Matrix(std::initializer_list<std::initializer_list<double>>& arg_data); // using initializer_list, don't use explicit
         
         constexpr explicit Matrix(const std::array<std::array<double, ColN>, RowN>& arg_data);
 

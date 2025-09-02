@@ -14,10 +14,8 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
-#include "StringUtils.hpp"
-#include "Math/Fraction.hpp"
-#include "Vector2D.hpp"
-#include "Matrix.hpp"
+#include "../Utils/StringUtils.hpp"
+#include "../Math/Math.hpp"
 #include "Size2D.hpp"
 #include "Level.hpp"
 #include "GameBoardObjects.hpp"

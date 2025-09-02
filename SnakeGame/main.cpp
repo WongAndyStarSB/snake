@@ -7,9 +7,9 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_timer.h>
 
-#include "Logger.hpp"
-#include "utils.hpp"
-#include "Math/Fraction.hpp"
+#include "../Logger/Logger.hpp"
+#include "../Utils/utils.hpp"
+#include "../Math/Fraction.hpp"
 #include "Vector2D.hpp"
 #include "Matrix.hpp"
 #include "Pos2D.hpp"
@@ -35,7 +35,7 @@ int frame_num = 0;
 SDL_Window* window;
 SDL_Renderer* renderer;
 
-int main() {
+int main_func() {
     
     SDL_CreateWindowAndRenderer("Snake", 100, 100, NULL, &window, &renderer);
     
@@ -95,5 +95,12 @@ int main() {
         
     // }
     return 0;
+}
+int main() {
+    try {
+        main_func();
+    } catch (std::exception& e) {
+        Logger::logAndThrow<Logger::SeeAbove>("main", e.what());
+    }
 }
 

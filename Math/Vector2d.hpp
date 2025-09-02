@@ -2,7 +2,7 @@
 #define VECTOR_2D_HPP
 
 #include <string>
-#include "../Logger.hpp"
+#include "../Logger/Logger.hpp"
 #include "MathUtils.hpp"
 #include "Vector.hpp"
 

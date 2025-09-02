@@ -253,7 +253,7 @@ Vector<Dimension> Vector<Dimension>::zeroVector() {
 
 template <size_t Dimension>
 template <typename ExceptionType>
-void Vector<Dimension>::logAndThrow(std::string where, std::string message) {
+void Vector<Dimension>::logAndThrow(const std::string& where, const std::string& message) const {
     Logger::log_and_throw<ExceptionType>(
         "class Vector<" + std::to_string(Dimension) + ">::" + where, 
         message);

@@ -1,5 +1,5 @@
 #include "Logger.hpp"
-#include "StringUtils.hpp"
+#include "../Utils/StringUtils.hpp"
 #include <iostream>
 #include <filesystem>
 #include <fstream>

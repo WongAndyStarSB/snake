@@ -4,8 +4,8 @@
 #include <string>
 #include <typeinfo>
 
-#include "utils.hpp"
-#include "Math/Fraction.hpp"
+#include "../Utils/utils.hpp"
+#include "../Math/Fraction.hpp"
 
 bool Vector2D::isVectorInRange(int upper_lim_x, int upper_lim_y, int lower_lim_x, int lower_lim_y) {
     return (

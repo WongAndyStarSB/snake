@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-#include "Logger.hpp"
+#include "../Logger/Logger.hpp"
 #include "Vector2D.hpp"
 #include "GameBoardObject.hpp"
 

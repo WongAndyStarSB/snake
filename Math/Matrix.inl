@@ -6,13 +6,13 @@
 #include "Matrix.hpp"
 
 
-using namespace Math;
+namespace Math {
 
 // constructors
 
 template <size_t RowN, size_t ColN>
 inline constexpr Matrix<RowN, ColN>::Matrix( // using initializer_list, don't use explicit
-    std::initializer_list<std::initializer_list<double>> arg_data
+    std::initializer_list<std::initializer_list<double>>& arg_data
 ) {
     try {
         assign_with_initializer_list(arg_data);
@@ -57,7 +57,7 @@ inline constexpr Matrix<RowN, ColN>::Matrix(
 
 template <size_t RowN, size_t ColN>
 inline constexpr Matrix<RowN, ColN>::Matrix(
-    const double& default_val = 0.0
+    const double& default_val
 ) {
     for (auto it = data.begin(); it != data.end(); ++it) {
         for (auto jt = it->begin(); jt != it->end(); ++jt) {
@@ -168,7 +168,7 @@ inline \
 bool Matrix<RowN, ColN>::operator==(const Matrix<RowN, ColN>& other) const {
     for (size_t r = 0; r < RowN; ++r) {
         for (size_t c = 0; c < ColN; ++c) {
-            if (std::abs(data[r][c] - other[r][c]) > precision) {
+            if (std::abs(data[r][c] - other[r][c]) > m_precision) {
                 return false;
             }
         }
@@ -442,11 +442,11 @@ inline Matrix<ColN, RowN> Matrix<RowN, ColN>::transpose() const {
 
 template <size_t RowN, size_t ColN>
 inline std::string Matrix<RowN, ColN>::to_string(
-    bool add_prefix = true, 
-    std::string elem_sep = ", ", 
-    std::string line_sep = "], \n [", 
-    std::string front = "[[", 
-    std::string end = "]]"
+    bool add_prefix, 
+    std::string elem_sep, 
+    std::string line_sep, 
+    std::string front, 
+    std::string end
 ) const {
     std::string result;
     result += (add_prefix? "Matrix(\n" : "(\n") + front;
@@ -461,5 +461,7 @@ inline std::string Matrix<RowN, ColN>::to_string(
     result += "\n)";
     return result;
 }
+
+} // namespace Math
 
 #endif // MATH_MATRIX_INL

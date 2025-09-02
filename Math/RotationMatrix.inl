@@ -16,7 +16,7 @@ using namespace Math;
 template <size_t N>
 inline RotationMatrix<N>::RotationMatrix(
     Angle rad
-) : angle(rad), 
+) : m_angle(rad), 
     SquareMatrix(
         { {std::cos(rad), -std::sin(rad)}, 
           {std::sin(rad),  std::cos(rad)}  }
@@ -130,21 +130,21 @@ inline bool RotationMatrix<N>::isRotationMatrix(
             "weird usage: determining if a matrix of size *1x1* is a rotation matrix", 
             Logger::LogLevel::WARNING_1
         );
-        if (std::abs(mat[0][0] - 1) > precision) {
+        if (std::abs(mat[0][0] - 1) > m_precision) {
             return false;
         } else {
             return true;
         }
     } else {
-        if (std::abs(mat.det() - 1) > precision) {
+        if (std::abs(mat.det() - 1) > m_precision) {
             return false;
         }
         if constexpr (N == 2) {
             // { {cos, -sin}, 
             //   {sin, cos}  }
-            if (std::abs(mat[0][0] - mat[1][1]) > precision // topLeft != bottomRight
-                || std::abs(mat[1][0] + mat[0][1]) > precision // bottomLeft != negative topRight
-                || std::abs(mat[0][0] * mat[0][0] + mat[1][0] * mat[1][0] - 1) > precision // cos^2 + sin^2 != 1
+            if (std::abs(mat[0][0] - mat[1][1]) > m_precision // topLeft != bottomRight
+                || std::abs(mat[1][0] + mat[0][1]) > m_precision // bottomLeft != negative topRight
+                || std::abs(mat[0][0] * mat[0][0] + mat[1][0] * mat[1][0] - 1) > m_precision // cos^2 + sin^2 != 1
             ) {
                 return false;
             }
