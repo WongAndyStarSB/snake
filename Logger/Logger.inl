@@ -6,33 +6,51 @@
 #include <type_traits>
 #include "../Utils/StringUtils.hpp"
 
-namespace Logger {
+
 
 template <typename ExceptionType>
-[[noreturn]] void log_and_throw(const std::string& where, std::string message) {
+[[noreturn]] void Logger::logAndThrow(std::string_view where, std::string_view what) {
     static_assert(
         std::is_base_of<std::exception, ExceptionType>::value,
-        "type must derive from std::exception"
+        "type must be derived from std::exception"
     );
-    std::string msg = "[ERROR] ";
-    if constexpr (std::is_same<ExceptionType, Logger::SeeAbove>::value) {
-        message = "<SeeAbove> " + message;
-        msg += "Logger::SeeAbove";
-    } else {
-        msg += StringUtils::common_exceptions_to_string<ExceptionType>();
-    } 
-    msg += "\n" + message;
+    std::stringstream what_ss = "[ERROR] ";
     
-    log(where, msg, ERROR, true);
-    throw ExceptionType(message);
+    if constexpr (std::is_same<ExceptionType, Logger::SeeAbove>::value) {
+        what_ss << "Logger::SeeAbove\n<SeeAbove> " << what;
+    } else {
+        what_ss << getCorrespondStrOfType<ExceptionType>() << "\n" << what;
+    }
+    Logger::logDos(where, std::string_view(what_ss.str()), Logger::LogLevel::ERROR, true);
+    throw ExceptionType(what);
 }
 
 template <typename ExceptionType>
-[[noreturn]] void logAndThrow(const std::string& where, std::string message) {
-    log_and_throw(where, message);
+[[noreturn]] void Logger::log_and_throw(std::string_view where, std::string_view what) {
+    logAndThrow(where, what);
 }
 
-} // namespace Logger
+// template <typename ExcpetionType>
+// [[noreturn]] void Logger::logAndThrow(const std::stringstream& where, const std::stringstream& what) {
+//     const std::string where_str = where.str();
+//     const std::string what_str = what.str();
+//     logAndThrow(std::string_view(where_str), std::string_view(what_str));
+// }
+
+template <typename ExceptionT>
+void Logger::addTypeStringBond(const std::string& correspond_str) {
+    s_typeid_to_str_map[typeid(ExceptionT)] = correspond_str;
+}
+
+template <typename ExceptionT>
+const std::string& Logger::getCorrespondStrOfType() {
+    std::type_info exceptionT_id = typeid(ExceptionT);
+    if (s_typeid_to_str_map.find(exceptionT_id) == type_id_str.end()) {
+        return "UnknownExceptionType";
+    }
+    return s_typeid_to_str_map[typeid(ExceptionT)];
+}
+
 
 
 #endif // LOGGER_INL
