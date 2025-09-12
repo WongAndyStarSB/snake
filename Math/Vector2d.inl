@@ -3,7 +3,7 @@
 
 #include "Vector2d.hpp"
 
-namespace Math {
+namespace NS_math {
 
 template <typename ExceptionType>
 inline void Vector2d::logAndThrow(const std::string& func_name, const std::string& message) const {

@@ -3,7 +3,7 @@
 
 #include "Vector.hpp"
 
-namespace Math {
+namespace NS_math {
 
 template <size_t Dimension>
 Vector<Dimension>::Vector(std::array<double, Dimension> arr) : data(arr) {}
@@ -16,7 +16,10 @@ Vector<Dimension>::Vector(const std::initializer_list<double>& il) {
             "il should have length == Dimension"
         ); 
     }
-    data = il;
+    size_t i = 0;
+    for (auto ptr = il.begin(); ptr != il.end(); ++ptr) {
+        data[i++] = *ptr;
+    }
 }
 
 template <size_t Dimension>
@@ -27,7 +30,7 @@ Vector<Dimension>::Vector(Vector&&) = default;
 
 template <size_t Dimension>
 Vector<Dimension>::Vector(const double& val) {
-    data.fill(0.0);
+    data.fill(val);
 }
 
 // template <size_t Dimension>

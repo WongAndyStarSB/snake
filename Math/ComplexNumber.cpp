@@ -2,8 +2,9 @@
 
 #include <cstdlib>
 #include <cmath>
+#include "ZeroDivisionException.hpp"
 
-namespace Math {
+namespace NS_math {
 
 ComplexNumber ComplexNumber::createFromPolar(double magnitude, const Angle& rad) {
     return ComplexNumber(
@@ -41,7 +42,11 @@ ComplexNumber::ComplexNumber(
     helperInitReIm();
 }
 
-ComplexNumber::ComplexNumber(const ComplexNumber& other) = default;
+ComplexNumber::ComplexNumber(const ComplexNumber& other)
+    : Vector2d(other), precision(other.precision) 
+{
+    helperInitReIm();
+}
 
 ComplexNumber::ComplexNumber(ComplexNumber&& other) = default;
 
@@ -60,10 +65,10 @@ Angle ComplexNumber::getAngle() const {
     return Angle(std::atan2(*Im, *Re));
 }
 
-const double* const &ComplexNumber::cgetRePtr() const {
+const double* ComplexNumber::cgetRePtr() const {
     return Re.get();
 }
-const double* const &ComplexNumber::cgetImPtr() const {
+const double* ComplexNumber::cgetImPtr() const {
     return Im.get();
 }
 

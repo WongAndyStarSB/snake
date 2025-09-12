@@ -9,7 +9,7 @@
 #include "MathUtils.hpp"
 
 
-namespace Math {
+namespace NS_math {
 
 class Fraction {
     private:
@@ -71,6 +71,6 @@ class Fraction {
         Fraction operator/(const int& num) const;
 }; // class
 
-} // namespace Math
+} // namespace NS_math
 
 #endif // FRACTION_HPP

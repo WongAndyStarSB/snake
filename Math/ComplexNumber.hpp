@@ -6,7 +6,7 @@
 #include <memory>
 #include "Angle.hpp"
 
-namespace Math {
+namespace NS_math {
 class ComplexNumber : protected Vector2d {
     private:
         double precision = 1e-6;
@@ -28,8 +28,8 @@ class ComplexNumber : protected Vector2d {
         double getMagnitude() const;
         Angle getAngle() const;
 
-        const double* const &cgetRePtr() const;
-        const double* const &cgetImPtr() const;
+        const double* cgetRePtr() const;
+        const double* cgetImPtr() const;
 
         double* getRePtr();
         double* getImPtr();
@@ -63,6 +63,6 @@ class ComplexNumber : protected Vector2d {
 };
 }
 
-#include "Vector2d.inl"
+#include "ComplexNumber.inl"
 
 #endif // COMPLEX_NUMBER_HPP

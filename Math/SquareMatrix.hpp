@@ -9,7 +9,7 @@
 #include "MathUtils.hpp"
 #include "Matrix.hpp"
 
-namespace Math {
+namespace NS_math {
 
 template <const size_t N>
 class SquareMatrix : protected Matrix<N, N> {

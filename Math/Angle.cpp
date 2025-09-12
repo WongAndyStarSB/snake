@@ -1,12 +1,12 @@
 #include "Angle.hpp"
-#include "MathUtils.hpp"
+#include "ZeroDivisionException.hpp"
 
 
 #include <cmath>
 #include <cstdlib>
 
 
-using namespace Math;
+using namespace NS_math;
 
 
 // public static

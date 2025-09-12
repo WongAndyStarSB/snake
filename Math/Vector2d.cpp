@@ -1,12 +1,14 @@
 #include "Vector2d.hpp"
 
-namespace Math {
+#include "ZeroDivisionException.hpp"
 
-explicit Vector2d::Vector2d() 
+namespace NS_math {
+
+Vector2d::Vector2d() 
     : Vector<2>(0) 
 {}
 
-explicit Vector2d::Vector2d(double arg_x, double arg_y)
+Vector2d::Vector2d(double arg_x, double arg_y)
     : Vector<2>{ arg_x, arg_y }
 {}
 
@@ -160,7 +162,13 @@ bool Vector2d::isPerpendicular(const Vector2d& other, double precision) const {
 }
 
 bool Vector2d::isZeroVector(double precision) const {
-    return isEqual(Vector2d::zeroVector(), precision);
+    return isEqual(Vector2d::s_zeroVector(), precision);
+}
+
+
+
+std::string Vector2d::s_toString(const Vector2d& vect) {
+    return vect.toString(false);
 }
 
 }

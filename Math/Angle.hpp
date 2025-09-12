@@ -5,7 +5,7 @@
 #include "../Logger/Logger.hpp"
 #include "MathUtils.hpp"
 
-namespace Math {
+namespace NS_math {
 
 class Angle {
 

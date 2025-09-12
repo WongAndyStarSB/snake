@@ -9,7 +9,7 @@
 #include "Vector.hpp"
 #include "../Logger/Logger.hpp"
 
-namespace Math {
+namespace NS_math {
 
 template <size_t N>
 class RotationMatrix : protected SquareMatrix<N> {

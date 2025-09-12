@@ -6,7 +6,7 @@
 #include "MathUtils.hpp"
 #include "Vector.hpp"
 
-namespace Math {
+namespace NS_math {
 
 class Vector2d : protected Vector<2> {
     public:
@@ -34,7 +34,7 @@ class Vector2d : protected Vector<2> {
         const Vector<2>* getBasePtr() const;
         const Vector<2>& getBaseConstReference() const;
 
-        std::string toString(bool add_prefix = true) const;
+        std::string toString(bool add_prefix = false) const;
         
         std::array<std::array<double, 1>, 2> toColumn() const;
 
@@ -64,7 +64,8 @@ class Vector2d : protected Vector<2> {
         bool isPerpendicular(const Vector2d& other, double precision = 1e-6) const;
         bool isZeroVector(double precision = 1e-6) const;
         
-        static Vector2d zeroVector() { return Vector2d(0, 0); }
+        static Vector2d s_zeroVector() { return Vector2d(0, 0); }
+        static std::string s_toString(const Vector2d& vect);
     private:
         template <typename ExceptionType>
         [[noreturn]] void logAndThrow(const std::string& func_name, const std::string& message) const;

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef MATH_MATRIX_INL
 #define MATH_MATRIX_INL
 
@@ -6,7 +7,7 @@
 #include "Matrix.hpp"
 
 
-namespace Math {
+namespace NS_math {
 
 // constructors
 
@@ -31,7 +32,7 @@ inline constexpr Matrix<RowN, ColN>::Matrix(
 {}
 
 template <size_t RowN, size_t ColN>
-inline constexpr Matrix<RowN, ColN>::Matrix(
+inline Matrix<RowN, 1> Matrix<RowN, ColN>::createFromArrRow(
     const std::array<double, RowN>& arg_arr
 ) {
     static_assert(
@@ -45,14 +46,15 @@ inline constexpr Matrix<RowN, ColN>::Matrix(
 }
 
 template <size_t RowN, size_t ColN>
-inline constexpr Matrix<RowN, ColN>::Matrix(
+inline Matrix<1, ColN> Matrix<RowN, ColN>::createFromArrCol(
     const std::array<double, ColN>& arg_arr
-) : data({arg_arr}) {
+) {
     static_assert(
         RowN == 1, 
         "Matrix(const std::array<double, ColN>&): " 
             "Only valid for row vectors (RowN == 1)"
     );
+    data = arg_arr;
 }
 
 template <size_t RowN, size_t ColN>

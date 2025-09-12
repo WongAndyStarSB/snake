@@ -39,7 +39,7 @@ double& Vector3d::operator[](size_t index) {
             log_and_throw<std::invalid_argument>(
                 "operator[](size_t index)", 
                 "index out of range [0, 2]");
-            throw;
+            // unreachable
     }
 }
 const double& Vector3d::operator[](size_t index) const {
@@ -51,7 +51,7 @@ const double& Vector3d::operator[](size_t index) const {
             log_and_throw<std::invalid_argument>(
                 "operator[](size_t index) const", 
                 "index out of range [0, 2]");
-            throw;
+            // unreachable
     }
 }
 

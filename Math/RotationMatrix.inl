@@ -11,7 +11,7 @@
 
 #include <cmath>
 
-using namespace Math;
+using namespace NS_math;
 
 template <size_t N>
 inline RotationMatrix<N>::RotationMatrix(
@@ -36,8 +36,8 @@ inline RotationMatrix<N>::RotationMatrix(
 
 template <size_t N>
 template <size_t ColN>
-Math::Matrix<N, ColN> RotationMatrix<N>::operator*(
-    const Math::Matrix<N, ColN>& mat
+NS_math::Matrix<N, ColN> RotationMatrix<N>::operator*(
+    const NS_math::Matrix<N, ColN>& mat
 ) {
     return SquareMatrix<N>::operator*(mat);
 }
@@ -94,7 +94,7 @@ Vector<N> RotationMatrix<N>::operator*(
         // Log the exception and fallback to non-parallelized multiplication
         log("operator*", 
             "Threading failed: " + std::string(e.what()) + ". Falling back to non-parallelized multiplication.", 
-            Logger::LogLevel::WARNING_1);
+            Logger::LogLevel::WARNING_LOW);
         return mul_without_parallelization(vect);
     }
     
@@ -128,7 +128,7 @@ inline bool RotationMatrix<N>::isRotationMatrix(
     if constexpr (N == 1) {
         log("is_matrix_rotationMatrix", 
             "weird usage: determining if a matrix of size *1x1* is a rotation matrix", 
-            Logger::LogLevel::WARNING_1
+            Logger::LogLevel::WARNING_LOW
         );
         if (std::abs(mat[0][0] - 1) > m_precision) {
             return false;

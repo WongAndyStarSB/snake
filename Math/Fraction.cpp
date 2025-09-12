@@ -3,9 +3,9 @@
 #include <cmath>
 #include <stdexcept>
 
-#include "MathUtils.hpp"
+#include "ZeroDivisionException.hpp"
 
-using namespace Math;
+using namespace NS_math;
 // static
 
 uint8_t Fraction::default_precision = 6; // default precision for double to fraction conversion

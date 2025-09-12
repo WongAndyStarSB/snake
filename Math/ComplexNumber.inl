@@ -3,9 +3,9 @@
 
 
 #include "ComplexNumber.hpp"
-#include "../Logger.hpp"
+#include "../Logger/Logger.hpp"
 
-namespace Math {
+namespace NS_math {
 
 template <typename ExceptionType>
 [[noreturn]] void ComplexNumber::logAndThrow(const std::string& where, const std::string& what) const {

@@ -5,7 +5,7 @@
 #include "../Logger/Logger.hpp"
 #include "../Utils/utils.hpp"
 
-namespace Math {
+namespace NS_math {
 
 template <size_t Dimension>
 class Vector {

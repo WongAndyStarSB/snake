@@ -9,7 +9,7 @@
 
 #include "../Logger/Logger.hpp"
 
-namespace Math {
+namespace NS_math {
 #include "MathUtils.hpp"
 
 
@@ -32,8 +32,8 @@ class Matrix { // fixed sized Matrix with elem type using double
         
         constexpr explicit Matrix(const std::array<std::array<double, ColN>, RowN>& arg_data);
 
-        constexpr explicit Matrix(const std::array<double, RowN>& arg_arr);
-        constexpr explicit Matrix(const std::array<double, ColN>& arg_arr);
+        static Matrix<RowN, 1> createFromArrRow(const std::array<double, RowN>& arg_arr);
+        static Matrix<1, ColN> createFromArrCol(const std::array<double, ColN>& arg_arr);
         constexpr explicit Matrix(const double& default_val = 0.0);
         explicit Matrix(const std::vector<std::vector<double>>& arg_data);
 
