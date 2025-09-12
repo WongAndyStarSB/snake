@@ -20,12 +20,12 @@
 #include "Level.hpp"
 #include "levels.hpp"
 
-using namespace snake;
+using namespace snake_game_ns;
 
 bool game_running = false;
 bool player_started = false;
 const int FRAME_RATE = 30;
-const Math::Fraction MILLIS_PER_FRAME_FRACTION = Math::Fraction(1000, FRAME_RATE); // 1000 milliseconds in a second divided by frame rate
+const NS_math::Fraction MILLIS_PER_FRAME_FRACTION = NS_math::Fraction(1000, FRAME_RATE); // 1000 milliseconds in a second divided by frame rate
 const int MILLIS_PER_FRAME = MILLIS_PER_FRAME_FRACTION.floor(); // Convert to milliseconds
 Vector2D player_direction(0, 0);
 
@@ -43,7 +43,9 @@ int main_func() {
     levels::init_testing_levels();
     levels::init_levels(); // Initialize levels
     
+
     std::string lev_id;
+    std::cout << "levid: ";
     std::getline(std::cin, lev_id);
     const Level& lev = Level::find_level(lev_id);
     Game game(lev);

@@ -168,7 +168,7 @@ void Game::run() {
         if (tmp_duration < MICROS_PER_FRAME) {
             SDL_Delay((MICROS_PER_FRAME - tmp_duration) / 1000);
         } else {
-            log("run()", "tmp_duration >= MICROS_PER_FRAME", Logger::LogLevel::WARNING_1);
+            log("run()", "tmp_duration >= MICROS_PER_FRAME", Logger::LogLevel::WARNING_LOW);
         }
         
         
@@ -222,7 +222,7 @@ void Game::pause() {
 }
 void Game::resume() {
     if (status != STOP || stop_reason != PAUSED) {
-        log("resume()", "game is not paused, cannot resume", Logger::WARNING_2);
+        log("resume()", "game is not paused, cannot resume", Logger::WARNING_MID);
         return;
     }
     start_game();
@@ -332,7 +332,7 @@ void Game::display(int n) const {
 }
 
 void Game::record(const std::string& message, bool add_timestamp) {
-    std::string msg = StringUtils::add_indent(message, 4);
+    std::string msg = string_utils_ns::add_indent(message, 4);
     std::time_t now = std::time(nullptr);
     std::tm local_time;
     #ifdef _MSC_VER
@@ -405,7 +405,7 @@ void Game::start_game() {
     // log("start_game()", "", Logger::INFO);
     throw_if_init_not_done("start_game()");
     if (status == RUNNING) {
-        log("start_game()", "game is already running, no need to start", Logger::WARNING_2);
+        log("start_game()", "game is already running, no need to start", Logger::WARNING_MID);
         return;
     }
     
@@ -466,5 +466,5 @@ std::string Game::add_prefix_and_indent_for_log(const std::string& message, bool
         
     }
     prefix += " ]\n";
-    return prefix + StringUtils::add_indent(message, 2);
+    return prefix + string_utils_ns::add_indent(message, 2);
 }

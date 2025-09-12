@@ -77,7 +77,7 @@ std::vector<std::unique_ptr<SnakeSeg>>::const_iterator Snake::get_iterator_with_
  */
 size_t Snake::get_segment_index_from_head(const size_t& offset_from_head) const {
     if (offset_from_head >= snake_segments.size()) {
-        Logger::log("Snake::get_segment_index_from_head(const size_t& offset_from_head) const", "InvalidArgument: offset_from_head (value:"+std::to_string(offset_from_head) + ") is out of range (snake_segments.size():" + std::to_string(snake_segments.size()) + ")", Logger::WARNING_1);
+        Logger::log("Snake::get_segment_index_from_head(const size_t& offset_from_head) const", "InvalidArgument: offset_from_head (value:"+std::to_string(offset_from_head) + ") is out of range (snake_segments.size():" + std::to_string(snake_segments.size()) + ")", Logger::WARNING_LOW);
     }
     return (head_index + offset_from_head) % snake_segments.size();
 }

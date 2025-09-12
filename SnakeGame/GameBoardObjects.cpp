@@ -153,11 +153,11 @@ void GameBoardObjects::force_update(const Vector2D& next_snake_direction) {
     update_board();
     update_empty_poses();
     if (tmp_board != related_game->board2d) {
-        log("force_update", "update does not update board correctly\n-board from manual update: " + tmp_board.to_string() + "\nboard from objs" + related_game->board2d.to_string(), Logger::WARNING_3);
+        log("force_update", "update does not update board correctly\n-board from manual update: " + tmp_board.to_string() + "\nboard from objs" + related_game->board2d.to_string(), Logger::WARNING_HIGH);
         log("force_update", "board updated", Logger::INFO);
     }
     if (!Utils::Vector::have_same_elements(tmp_empty_poses, empty_poses)) {
-        log("force_update", "update does not update empty_poses correctly\n-empty_poses from manual update: " + Pos2D::vector_to_string(tmp_empty_poses) + "\n-empty_poses from board        : " + Pos2D::vector_to_string(empty_poses), Logger::WARNING_3);
+        log("force_update", "update does not update empty_poses correctly\n-empty_poses from manual update: " + Pos2D::vector_to_string(tmp_empty_poses) + "\n-empty_poses from board        : " + Pos2D::vector_to_string(empty_poses), Logger::WARNING_HIGH);
         log("force_update", "empty_poses updated", Logger::INFO);
     }
 }
@@ -215,7 +215,7 @@ void GameBoardObjects::throw_if_init_not_done(const std::string& method_name, co
 void GameBoardObjects::update_board(Matrix<int>* tmp_board) {
     log("update_board(Matrix<int>* tmp_board)", 
         "updating with tmp_board:" 
-            + ((tmp_board == nullptr)? "null" : "\n" + StringUtils::add_indent(tmp_board->to_string(), 2)), 
+            + ((tmp_board == nullptr)? "null" : "\n" + string_utils_ns::add_indent(tmp_board->to_string(), 2)), 
         Logger::INFO);
     
     Matrix<int>& drawing_board = (related_game->board2d);
@@ -320,7 +320,7 @@ void GameBoardObjects::apple_randomize_pos(Apple &apple, bool eaten_by_snake) {
     if (eaten_by_snake) {
         if (empty_poses_find(tmp) != empty_poses.end()) {
             // snake_move did not update empty_poses
-            log("apple_randomize_pos", "LogicWarning:snake_move did not update empty_poses", Logger::WARNING_3);
+            log("apple_randomize_pos", "LogicWarning:snake_move did not update empty_poses", Logger::WARNING_HIGH);
             update_empty_poses(); // force_update
         }
         related_game->board2d[tmp.y][tmp.x] = SnakeSeg::head_representing_num;

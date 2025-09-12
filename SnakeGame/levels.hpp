@@ -10,7 +10,7 @@
 #include "Pos2D.hpp"
 #include "Level.hpp"
 
-namespace snake{
+namespace snake_game_ns{
 namespace levels{
 
 
@@ -102,7 +102,7 @@ inline const void init_levels() {
     const int YP01_APPLE_INIT_NUM = 3;
 
     
-    Level::create_and_register("SAMP", SAMPLE_BOARD, Pos2D(0, 0), 0); // Sample level
+    Level::create_and_register("SAMP", SAMPLE_BOARD, Pos2D(5, 5), 1); // Sample level
     Level::create_and_register("0000", LEVEL_0_BOARD, LEVEL_0_SNAKE_INIT_POS, LEVEL_0_APPLE_INIT_NUM);
     Level::create_and_register("0001", LEVEL_1_BOARD, LEVEL_1_SNAKE_INIT_POS, LEVEL_1_APPLE_INIT_NUM);
     Level::create_and_register("0002", LEVEL_2_BOARD, LEVEL_2_SNAKE_INIT_POS, LEVEL_2_APPLE_INIT_NUM);

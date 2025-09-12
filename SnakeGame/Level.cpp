@@ -128,7 +128,9 @@ void Level::switch_to_unchangeable() {
 const Level& Level::find_level(const std::string& id) {
     auto it = existing_levels.find(id);
     if (it == existing_levels.end()) {
-        Logger::log_and_throw<std::logic_error>("Level::find_level", "InvalidArgument: level not found");
+        Logger::log_and_throw<std::invalid_argument>(
+            "Level::find_level(const std::string& id)", 
+            "level not found (value of id = \""+id+"\")");
     } else {
         return *(it->second);
     }

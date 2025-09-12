@@ -82,8 +82,8 @@ bool Vector2D::is_same_direction_with(const Vector2D& other, bool zero_vector_co
     if (x == 0 || y == 0 || other.x == 0 || other.y == 0) {
         return false; // not parallel
     }
-    Math::Fraction x_ratio(x, other.x);
-    return x_ratio > 0 && x_ratio == Math::Fraction(y, other.y);
+    NS_math::Fraction x_ratio(x, other.x);
+    return x_ratio > 0 && x_ratio == NS_math::Fraction(y, other.y);
 }
 bool Vector2D::is_opposite_direction_with(const Vector2D& other, bool zero_vector_consider_as_true) const noexcept {
     if (x == 0 && y == 0 && other.x == 0 && other.y == 0) {
@@ -101,8 +101,8 @@ bool Vector2D::is_opposite_direction_with(const Vector2D& other, bool zero_vecto
     if (x == 0 || y == 0 || other.x == 0 || other.y == 0) {
         return false; // not parallel
     }
-    Math::Fraction x_ratio {x, other.x};
-    return x_ratio < 0 && x_ratio == Math::Fraction(y, other.y);
+    NS_math::Fraction x_ratio {x, other.x};
+    return x_ratio < 0 && x_ratio == NS_math::Fraction(y, other.y);
 }
 bool Vector2D::is_parallel_with(const Vector2D& other, bool zero_vector_consider_as_true) const noexcept {
     if (x == 0 && y == 0 && other.x == 0 && other.y == 0) {
@@ -117,7 +117,7 @@ bool Vector2D::is_parallel_with(const Vector2D& other, bool zero_vector_consider
     if (x == 0 || y == 0 || other.x == 0 || other.y == 0) {
         return false; // not parallel
     }
-    return Math::Fraction(x, other.x) == Math::Fraction(y, other.y);
+    return NS_math::Fraction(x, other.x) == NS_math::Fraction(y, other.y);
 }
 
 

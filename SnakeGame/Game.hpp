@@ -56,7 +56,7 @@ class Game {
 
         unsigned int frame_num = 0;
         const uint8_t FRAME_RATE = 60;
-        const Math::Fraction MICROS_PER_FRAME_FRACTION {(int)1000000, static_cast<int>(FRAME_RATE)}; // 1000000 microseconds in a second divided by frame rate
+        const NS_math::Fraction MICROS_PER_FRAME_FRACTION {(int)1000000, static_cast<int>(FRAME_RATE)}; // 1000000 microseconds in a second divided by frame rate
         const unsigned int MICROS_PER_FRAME = MICROS_PER_FRAME_FRACTION.floor(); // Convert to milliseconds
 
         
