@@ -14,7 +14,7 @@ template <typename ExceptionType>
         std::is_base_of<std::exception, ExceptionType>::value,
         "type must be derived from std::exception"
     );
-    std::stringstream what_ss = "[ERROR] ";
+    std::stringstream what_ss ("[ERROR] ");
     
     if constexpr (std::is_same<ExceptionType, Logger::SeeAbove>::value) {
         what_ss << "Logger::SeeAbove\n<SeeAbove> " << what;
@@ -22,7 +22,7 @@ template <typename ExceptionType>
         what_ss << getCorrespondStrOfType<ExceptionType>() << "\n" << what;
     }
     Logger::logDos(where, std::string_view(what_ss.str()), Logger::LogLevel::ERROR, true);
-    throw ExceptionType(what);
+    throw ExceptionType(std::string(what));
 }
 
 template <typename ExceptionType>
@@ -43,9 +43,9 @@ void Logger::addTypeStringBond(const std::string& correspond_str) {
 }
 
 template <typename ExceptionT>
-const std::string& Logger::getCorrespondStrOfType() {
-    std::type_info exceptionT_id = typeid(ExceptionT);
-    if (s_typeid_to_str_map.find(exceptionT_id) == type_id_str.end()) {
+std::string Logger::getCorrespondStrOfType() {
+    std::type_index exceptionT_id (typeid(ExceptionT));
+    if (s_typeid_to_str_map.find(exceptionT_id) == s_typeid_to_str_map.end()) {
         return "UnknownExceptionType";
     }
     return s_typeid_to_str_map[typeid(ExceptionT)];

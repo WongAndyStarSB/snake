@@ -36,13 +36,15 @@ public:
     };
 
 private:
-    static std::mutex s_logtofile_mutex;
-    static std::mutex s_logtobuffer_mutex;
+    static inline std::mutex s_logtofile_mutex;
+    static inline std::mutex s_logtobuffer_mutex;
 
-    static std::stringstream s_havent_logged_logs;
+    static inline std::stringstream s_havent_logged_logs;
+
     // Map from type_info to string for type names 
     static std::unordered_map<std::type_index, std::string> s_typeid_to_str_map;
 
+private:
     static std::unordered_map<std::type_index, std::string> initTypeidToStrMap();
 
     // Private helper: log to file
@@ -60,12 +62,12 @@ private:
 
 public:
 
+    static inline LogLevel log_level_threshold = LogLevel::INFO;
+    static inline bool s_delay_log = false;
+    static inline size_t s_num_of_indent_spaces = 4;
+    static inline double s_logfile_max_size = 5e6;
 
-    static LogLevel log_level_threshold;
-    static bool s_delay_log;
-    static size_t s_num_of_indent_spaces;
-    static double s_logfile_max_size;
-
+public:
     // static void log(const std::string& where, const std::string& what, const LogLevel& lev, bool add_timestamp = true);
     
     // static void log(const std::stringstream& where, const std::stringstream& what, const LogLevel& lev, bool add_timestamp = true);
@@ -75,21 +77,22 @@ public:
     static void start_run(const std::string& message = "");
 
     template <typename ExceptionType = std::runtime_error>
-    static [[noreturn]] void log_and_throw(std::string_view where, std::string_view what);
+    [[noreturn]] static void log_and_throw(std::string_view where, std::string_view what);
 
     template <typename ExceptionType = std::runtime_error>
-    static [[noreturn]] void logAndThrow(std::string_view where, std::string_view what);
+    [[noreturn]] static void logAndThrow(std::string_view where, std::string_view what);
 
     // template <typename ExceptionType = std::runtime_error>
-    // static [[noreturn]] void logAndThrow(const std::stringstream& where, const std::stringstream& what);
+    // [[noreturn]] static void logAndThrow(const std::stringstream& where, const std::stringstream& what);
 
     static void logHaventLogged();
+    static void setDelayLog(bool new_delay_log);
 
     template <typename ExceptionT>
     static void addTypeStringBond(const std::string& correspond_str);
 
     template <typename ExceptionT>
-    static const std::string& getCorrespondStrOfType();
+    static std::string getCorrespondStrOfType();
 
 }; // class Logger
 

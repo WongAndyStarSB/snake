@@ -12,8 +12,7 @@
 #include <cassert>
 
 
-
-std::unordered_map<std::type_index, std::string> Logger::s_typeid_to_str_map = initTypeidToStrMap();
+std::unordered_map<std::type_index, std::string> Logger::s_typeid_to_str_map = Logger::initTypeidToStrMap();
 
 // Private helper: initialize s_typeid_to_str_map
 std::unordered_map<std::type_index, std::string> Logger::initTypeidToStrMap() {
@@ -39,16 +38,17 @@ std::unordered_map<std::type_index, std::string> Logger::initTypeidToStrMap() {
 
 
 void Logger::helperLogToFile(std::string_view file_name, std::string_view message) {
-    std::lock_guard<std::mutex> lock(s_logtofile_mutex);
 
+    std::lock_guard<std::mutex> lock(s_logtofile_mutex);
     static int num_of_same_name_files = 1;
     namespace fs = std::filesystem;
     fs::path log_path;
     log_path.concat("logs/").concat(file_name).concat(".log");
-    if (fs::file_size(log_path) > s_logfile_max_size) {
-        log_path.replace_filename(log_path.stem().string() + "_" + std::to_string(++num_of_same_name_files));
-    }
+    
     try {
+        if (fs::exists(log_path) && fs::file_size(log_path) > s_logfile_max_size) {
+            log_path.replace_filename(log_path.stem().string() + "_" + std::to_string(++num_of_same_name_files));
+        }
         fs::create_directories(log_path.parent_path());
         std::ofstream log_file(log_path, std::ios_base::app);
         if (log_file.is_open()) {
@@ -59,6 +59,7 @@ void Logger::helperLogToFile(std::string_view file_name, std::string_view messag
         log_file.flush();
     } catch (const std::exception& e) {
         std::cerr << "Failed to log to file: " << e.what() << std::endl;
+        throw e;
     }
 }
 
@@ -112,6 +113,7 @@ std::string Logger::helperGenTimestamp(const std::tm& t) {
 }
 
 void Logger::logDos(std::string_view where, std::string_view what, LogLevel lev, bool add_timestamp) {
+
     assert(!where.empty() && "where (std::string_view) cannot be empty/null");
     assert(!what.empty() && "what (std::string_view) cannot be empty/null");
     
@@ -119,7 +121,6 @@ void Logger::logDos(std::string_view where, std::string_view what, LogLevel lev,
         return;
     }
 
-    std::time_t now = std::time(nullptr);
     std::tm local_time = helperGetTime();
     std::string log_entry;
     log_entry.reserve(256);
@@ -138,22 +139,17 @@ void Logger::logDos(std::string_view where, std::string_view what, LogLevel lev,
         std::lock_guard<std::mutex> lock(s_logtobuffer_mutex);
         s_havent_logged_logs << "\n" << log_entry;
         if (lev == ERROR) {
-            helperLogToFile(helperGenFileName(local_time), s_havent_logged_logs.str());
-            s_havent_logged_logs.str("");
+            logHaventLogged();
         }
     } else {
+        
         helperLogToFile(helperGenFileName(local_time), log_entry);
+        
     }
     return;
 }
 
 // public
-
-Logger::LogLevel Logger::log_level_threshold = Logger::LogLevel::INFO;
-bool Logger::s_delay_log = false;
-// std::stringstream s_havent_logged_logs;
-size_t Logger::s_num_of_indent_spaces = 4;
-double Logger::s_logfile_max_size = 5e6;
 
 void Logger::log(std::string_view where, std::string_view what, Logger::LogLevel lev, bool add_timestamp) {
     logDos(where, what, lev, add_timestamp);
@@ -165,10 +161,23 @@ void Logger::log(std::string_view where, std::string_view what, Logger::LogLevel
 // }
 
 void Logger::logHaventLogged() {
-    helperLogToFile(
-        helperGenFileName(helperGetTime()), 
-        std::string_view(s_havent_logged_logs.str())
-    );
+    if (s_havent_logged_logs.str() != "") {
+        std::string havent_logged_string = s_havent_logged_logs.str(); // extend lifetime
+        helperLogToFile(
+            helperGenFileName(helperGetTime()), 
+            std::string_view(havent_logged_string)
+        );
+        s_havent_logged_logs.str("");
+    }
+}
+
+void Logger::setDelayLog(bool new_delay_log) {
+    if (new_delay_log == true) {
+        s_delay_log = true;
+        logHaventLogged();
+    } else {
+        s_delay_log = false;
+    }
 }
 
 void Logger::start_run(const std::string& message) {
