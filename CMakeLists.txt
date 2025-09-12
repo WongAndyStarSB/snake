@@ -51,13 +51,15 @@ add_executable(
 file(GLOB UTILS_SOURCES "Utils/*.cpp")
 file(GLOB LOGGER_SOURCES "Logger/*.cpp")
 file(GLOB MATH_SOURCES "Math/*.cpp")
+file(GLOB APP_SOURCES "App/*.cpp")
 file(GLOB SNAKE_GAME_SOURCES "SnakeGame/*.cpp")
 
 # Add the source files to the executable target
 target_sources(${TARGET} PRIVATE 
     ${UTILS_SOURCES}
     ${LOGGER_SOURCES}
-    # ${MATH_SOURCES}
+    ${MATH_SOURCES}
+    # ${APP_SOURCES}
     ${SNAKE_GAME_SOURCES}
 )
 

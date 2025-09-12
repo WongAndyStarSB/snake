@@ -3,6 +3,8 @@
 .vscode
 *.pdb
 *.exe
+*.ilk
+*.obj
 logs/
 build/
 PreviousLogs/
