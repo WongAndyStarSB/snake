@@ -340,18 +340,7 @@ inline Matrix<RowN, ColN> Matrix<RowN, ColN>::operator-(const Matrix<RowN, ColN>
 template <size_t RowN, size_t ColN>
 template <size_t oColN>
 inline Matrix<RowN, oColN> Matrix<RowN, ColN>::operator*(const Matrix<ColN, oColN>& other) const {
-    Matrix<RowN, oColN> result;
-    double tmp;
-    for (size_t rr = 0; rr < RowN; ++rr) {
-        for (size_t rc = 0; rc < oColN; ++rc) {
-            tmp = 0;
-            for (size_t i = 0; i < ColN; ++i) {
-                tmp += data[rr][i] * other[i][rc];
-            }
-            result[rr][rc] = tmp;
-        }
-    }
-    return result;
+    return this->mul(other);
 }
 
 
@@ -463,6 +452,42 @@ inline std::string Matrix<RowN, ColN>::to_string(
     result += "\n)";
     return result;
 }
+
+template <size_t RowN, size_t ColN>
+template <size_t oColN>
+inline Matrix<RowN, oColN> Matrix<RowN, ColN>::mul(const Matrix<ColN, oColN>& other) const {
+    Matrix<RowN, oColN> result;
+    double tmp;
+    for (size_t rr = 0; rr < RowN; ++rr) {
+        for (size_t rc = 0; rc < oColN; ++rc) {
+            tmp = 0;
+            for (size_t i = 0; i < ColN; ++i) {
+                tmp += data[rr][i] * other[i][rc];
+            }
+            result[rr][rc] = tmp;
+        }
+    }
+    return result;
+}
+
+template <size_t RowN, size_t ColN>
+template <size_t oColN>
+inline Matrix<RowN, oColN> Matrix<RowN, ColN>::mul_OptWithRowColSwitch(const Matrix<ColN, oColN>& other) const {
+    Matrix<RowN, oColN> result;
+    Matrix<ColN, oColN> otherT ( other.transpose() );
+    double tmp;
+    for (size_t rr = 0; rr < RowN; ++rr) {
+        for (size_t rc = 0; rc < oColN; ++rc) {
+            tmp = 0;
+            for (size_t i = 0; i < ColN; ++i) {
+                tmp += data[rr][i] * otherT[rc][i];
+            }
+            result[rr][rc] = tmp;
+        }
+    }
+    return result;
+}
+
 
 } // namespace Math
 

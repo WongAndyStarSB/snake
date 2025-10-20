@@ -123,6 +123,11 @@ class Matrix { // fixed sized Matrix with elem type using double
         inline Matrix<RowN, ColN> T() const { return transpose(); }
         inline static constexpr Matrix<RowN, ColN> O() { return Matrix<RowN, ColN>(0); }
 
+        template <size_t oColN>
+        Matrix<RowN, oColN> mul(const Matrix<ColN, oColN>& other) const;
+        template <size_t oColN>
+        Matrix<RowN, oColN> mul_OptWithRowColSwitch(const Matrix<ColN, oColN>& other) const;
+
     private:
         
         void log(const std::string& func_name, const std::string& message, const Logger::LogLevel& log_level, bool add_timestamp) {

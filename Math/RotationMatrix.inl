@@ -17,11 +17,16 @@ template <size_t N>
 inline RotationMatrix<N>::RotationMatrix(
     Angle rad
 ) : m_angle(rad), 
-    SquareMatrix(
-        { {std::cos(rad), -std::sin(rad)}, 
-          {std::sin(rad),  std::cos(rad)}  }
-    ) 
-{}
+    SquareMatrix<N>::SquareMatrix() 
+{
+    data[0][0] = std::cos(rad); data[0][1] = -std::sin(rad);
+    data[1][0] = std::sin(rad); data[1][1] = std::cos(rad);
+    if constexpr (N == 3) {
+                                        data[0][2] = 0;
+                                        data[1][2] = 0;
+        data[2][0] = 0; data[2][1] = 0; data[2][2] = 1;
+    }
+}
 template <size_t N>
 inline RotationMatrix<N>::RotationMatrix(
     std::initializer_list<std::initializer_list<double>> rotation_matrix

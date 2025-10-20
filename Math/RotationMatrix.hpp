@@ -14,7 +14,7 @@ namespace NS_math {
 template <size_t N>
 class RotationMatrix : protected SquareMatrix<N> {
 
-    static_assert(N > 0, "RotationMatrix: N(size) must be positive");
+    static_assert(N > 1, "RotationMatrix: N(size) must be >= 2");
 
     private:
         Angle m_angle;

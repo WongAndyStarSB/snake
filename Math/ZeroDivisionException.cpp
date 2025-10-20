@@ -16,7 +16,7 @@ namespace NS_math {
     ZeroDivisionException::ZeroDivisionException(std::string_view message)
         : m_msg(message.empty() ? s_default_msg : message) 
     {}
-    const char* ZeroDivisionException::what() const {
+    const char* ZeroDivisionException::what() const throw() {
         return m_msg.c_str();
     }
 }
